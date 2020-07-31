@@ -5,10 +5,10 @@ Setup:
 1. Insall Docker and Docker Compose
 1. Set privileges on folder and sub-folders `sudo setfacl -Rdm g:docker:rwx ~/htpc`, `sudo chmod -R 775 ~/htpc`
 1. Make sure to have domain/DNS up to date, and API access to provider
-1. `mv .env.template .env` and fill out variables
+1. `mv .env.template .env` and fill out variables (https://docs.traefik.io/https/acme/#providers for alternative providers, I use Namecheap, `docker-compose.yml` will need to be updated too if changed)
+1. If dynamic IP: `crontab -e` add `0 0 * * * curl "http://dynamicdns.park-your-domain.com/update?host=<HOST>&domain=<DOMAIN>&password=<DDNS_PASSWORD>"` (this is for Namecheap)
 1. `touch traefik2/acme/acme.json` and `chmod 600 traefik2/acme/acme.json`
-1. If dynamic IP: `crontab -e` add `0 0 * * * curl "http://dynamicdns.park-your-domain.com/update?host=<HOST>&domain=<DOMAIN>&password=<DDNS_PASSWORD>"`
-1. `docker network create t2_proxy` and `docker network socket_proxy`
+1. `docker network create t2_proxy` and `docker network create socket_proxy`
 1. Settle up Google Cloud Platform oauth/credentials
 1. SSL certs:
     1. Uncomment traefik sections
