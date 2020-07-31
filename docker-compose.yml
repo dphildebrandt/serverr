@@ -38,7 +38,7 @@ services:
       - --providers.docker.swarmMode=false
       - --providers.file.directory=/rules
       - --providers.file.watch=true
-      #- --certificatesResolvers.dns-namecheap.acme.caServer=https://acme-staging-v02.api.letsencrypt.org/directory
+      #- --certificatesResolvers.dns-namecheap.acme.caServer=https://acme-staging-v02.api.letsencrypt.org/directory  # uncomment for testing
       - --certificatesResolvers.dns-namecheap.acme.email=$MY_EMAIL
       - --certificatesResolvers.dns-namecheap.acme.storage=/acme.json
       - --certificatesResolvers.dns-namecheap.acme.dnsChallenge.provider=namecheap
@@ -60,7 +60,7 @@ services:
         mode: host
     volumes:
       - $DOCKERDIR/traefik2/rules:/rules
-      - $DOCKERDIR/traefik2/acme/acme.json:/acme.json
+      - $DOCKERDIR/traefik2/acme/acme.json:/acme.json  # mkdir acme folder and touch acme.json
       - $DOCKERDIR/traefik2/traefik.log:/traefik.log
     environment:
       NAMECHEAP_API_USER: $NAMECHEAP_API_USER
@@ -76,7 +76,7 @@ services:
       - "traefik.http.routers.traefik-rtr.entrypoints=https"
       - "traefik.http.routers.traefik-rtr.rule=Host(`traefik.$DOMAINNAME`)"
       - "traefik.http.routers.traefik-rtr.tls=true"
-      # - "traefik.http.routers.traefik-rtr.tls.certresolver=dns-namecheap" # Comment out this line after first run of traefik to force the use of wildcard certs
+      # - "traefik.http.routers.traefik-rtr.tls.certresolver=dns-namecheap"  # uncomment for first run of traefik, commented to force the use of wildcard certs
       - "traefik.http.routers.traefik-rtr.tls.domains[0].main=$DOMAINNAME"
       - "traefik.http.routers.traefik-rtr.tls.domains[0].sans=*.$DOMAINNAME"
       # Services - API
