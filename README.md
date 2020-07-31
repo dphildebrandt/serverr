@@ -17,10 +17,10 @@ Setup:
     1. bring up traefik again and check certs at `traefik.domain.com` and/or `acme.json`
     1. Comment out certresolver label and bring up traefik again
 1. Configure various containers via their subdomain.domain.com addresses
-    1. Deluge and Sabnzbd (have to access Sabnzbd via IP:Port/sabnzbd before whitelisting the subdomain in config)
-    1. Jackett/Hydra (setup usenet provider and indexer accounts first)
-    1. Sonarr/Radarr using indexers, downloaders, and media locations
+    1. Sabnzbd (have to access Sabnzbd via IP:Port/sabnzbd before whitelisting the subdomain in config)
+    1. Hydra (setup usenet provider and indexer accounts first)
+    1. Sonarr/Radarr using Hydra, Sabnzbd, and media locations
     1. Plex to read from media locations
     1. Ombi with Sonarr/Radarr/Plex
     1. Portainer (follow comment about socket-proxy in `docker-compose.yml`)
-    1. Organizr to acces it all
+    1. Organizr to access it all from one easy domain
