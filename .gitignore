@@ -4,3 +4,4 @@
 !docker-compose.yml
 !traefik/rules/*
 !README.md
+!.env.template
