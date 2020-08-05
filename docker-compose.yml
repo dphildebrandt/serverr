@@ -289,7 +289,7 @@ services:
     volumes:
       - $DOCKERDIR/radarr:/config
       - $USERDIR/Downloads:/downloads
-      - $USERDIR/media/movies:/movies
+      - $MEDIADIR/movies:/movies
       - "/etc/localtime:/etc/localtime:ro"
     environment:
       - PUID=$PUID
@@ -318,7 +318,7 @@ services:
     volumes:
       - $DOCKERDIR/sonarr:/config
       - $USERDIR/Downloads:/downloads
-      - $USERDIR/media/tvshows:/tv
+      - $MEDIADIR/tv:/tv
       - "/etc/localtime:/etc/localtime:ro"
     environment:
       - PUID=$PUID
@@ -373,7 +373,7 @@ services:
     volumes:
       - $DOCKERDIR/plexms:/config
       - $USERDIR/Downloads/plex_tmp:/transcode
-      - $USERDIR/media:/media
+      - $MEDIADIR:/media
     ports:
       - "32400:32400/tcp"
       - "3005:3005/tcp"
