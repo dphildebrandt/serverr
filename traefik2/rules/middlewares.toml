@@ -13,7 +13,6 @@
     stsIncludeSubdomains = true
     stsPreload = true
     forceSTSHeader = true
-    customFrameOptionsValue = "allow-from https:example.com" #CSP takes care of this but may be needed for organizr. 
     contentTypeNosniff = true 
     browserXssFilter = true 
     referrerPolicy = "same-origin" 
