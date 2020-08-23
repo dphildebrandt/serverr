@@ -86,7 +86,7 @@ services:
   
   socket-proxy:
     container_name: socket-proxy
-    image: tecnativa/docker-socket-proxy:latest
+    image: fluencelabs/docker-socket-proxy:latest
     restart: always
     networks:
       - socket_proxy  
@@ -95,24 +95,25 @@ services:
       - "/var/run/docker.sock:/var/run/docker.sock"
     environment:
       - LOG_LEVEL=info
-      ## Granted by Default
+      # Granted by Default
       - EVENTS=1
       - PING=1
       - VERSION=1
-      ## Revoked by Default
+      # Revoked by Default
       - AUTH=0
       - SECRETS=0
-      - POST=1  # portainer
-      ## Not always needed
+      - POST=1  # Watchtower
+      - DELETE=1  # Watchtower
+      # GET options
       - BUILD=0
       - COMMIT=0
       - CONFIGS=0
       - CONTAINERS=1 # Traefik, portainer, etc.
       - DISTRIBUTION=0
       - EXEC=0
-      - IMAGES=1 # Portainer
+      - IMAGES=1 # Portainer, watchtower
       - INFO=1 # Portainer
-      - NETWORKS=1 # Portainer
+      - NETWORKS=1 # Portainer, watchtower
       - NODES=0
       - PLUGINS=0
       - SERVICES=1 # Portainer
@@ -121,6 +122,13 @@ services:
       - SYSTEM=0
       - TASKS=1 # Portaienr
       - VOLUMES=1 # Portainer
+      # POST options
+      - CONTAINERS_CREATE=1   # Watchtower
+      - CONTAINERS_START=1    # Watchtower
+      - CONTAINERS_UPDATE=1   # Watchtower
+      # DELETE Options
+      - CONTAINERS_DELETE=1   # Watchtower
+      - IMAGES_DELETE=1       # Watchtower
 
   oauth:
     container_name: oauth
