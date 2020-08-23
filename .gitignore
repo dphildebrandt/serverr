@@ -5,3 +5,4 @@
 !traefik/rules/*
 !README.md
 !.env.template
+!glances/glances.conf
