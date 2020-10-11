@@ -91,6 +91,8 @@ services:
     networks:
       - socket_proxy  
     privileged: true
+    ports:
+      - "127.0.0.1:2375:2375"
     volumes:
       - "/var/run/docker.sock:/var/run/docker.sock"
     environment:
@@ -150,6 +152,8 @@ services:
       - LOG_LEVEL=warn
       - LOG_FORMAT=text
       - LIFETIME=2592000  # 30 days  
+      - DEFAULT_ACTION=auth
+      - DEFAULT_PROVIDER=google
     labels:
       - "traefik.enable=true"
       # HTTP Routers
