@@ -32,7 +32,9 @@ services:
       - --accessLog.filters.statusCodes=400-499
       - --providers.docker=true
       - --providers.docker.endpoint=$SOCKET_PROXY
-      - --providers.docker.defaultrule=Host(`{{ index .Labels "com.docker.compose.service" }}.$DOMAINNAME`)
+      - --entrypoints.https.http.tls.options=tls-opts@file
+      - --entrypoints.https.http.tls.domains[0].main=$DOMAINNAME
+      - --entrypoints.https.http.tls.domains[0].sans=*.$DOMAINNAME
       - --providers.docker.exposedByDefault=false
       - --providers.docker.network=t2_proxy
       - --providers.docker.swarmMode=false
@@ -73,10 +75,7 @@ services:
       # HTTP Routers
       - "traefik.http.routers.traefik-rtr.entrypoints=https"
       - "traefik.http.routers.traefik-rtr.rule=Host(`traefik.$DOMAINNAME`)"
-      - "traefik.http.routers.traefik-rtr.tls=true"
       # - "traefik.http.routers.traefik-rtr.tls.certresolver=dns-namecheap"  # uncomment for first run of traefik, commented to force the use of wildcard certs
-      - "traefik.http.routers.traefik-rtr.tls.domains[0].main=$DOMAINNAME"
-      - "traefik.http.routers.traefik-rtr.tls.domains[0].sans=*.$DOMAINNAME"
       # Services - API
       - "traefik.http.routers.traefik-rtr.service=api@internal"
       # Middlewares
@@ -157,7 +156,6 @@ services:
       # HTTP Routers
       - "traefik.http.routers.oauth-rtr.entrypoints=https"
       - "traefik.http.routers.oauth-rtr.rule=Host(`oauth.$DOMAINNAME`)"
-      - "traefik.http.routers.oauth-rtr.tls=true"
       ## HTTP Services
       - "traefik.http.routers.oauth-rtr.service=oauth-svc"
       - "traefik.http.services.oauth-svc.loadbalancer.server.port=4181"
@@ -185,7 +183,6 @@ services:
       ## HTTP Routers
       - "traefik.http.routers.portainer-rtr.entrypoints=https"
       - "traefik.http.routers.portainer-rtr.rule=Host(`portainer.$DOMAINNAME`)"
-      - "traefik.http.routers.portainer-rtr.tls=true"
       ## Middlewares
       - "traefik.http.routers.portainer-rtr.middlewares=chain-oauth@file"
       ## HTTP Services
@@ -225,7 +222,6 @@ services:
       ## HTTP Routers
       - "traefik.http.routers.organizr-rtr.entrypoints=https"
       - "traefik.http.routers.organizr-rtr.rule=Host(`$DOMAINNAME`, `www.$DOMAINNAME`)"
-      - "traefik.http.routers.organizr-rtr.tls=true"
       ## Middlewares
       - "traefik.http.routers.organizr-rtr.middlewares=chain-oauth@file"
       ## HTTP Services
@@ -253,7 +249,6 @@ services:
       ## HTTP Routers
       - "traefik.http.routers.deluge-rtr.entrypoints=https"
       - "traefik.http.routers.deluge-rtr.rule=Host(`deluge.$DOMAINNAME`)"
-      - "traefik.http.routers.deluge-rtr.tls=true"
       ## Middlewares
       - "traefik.http.routers.deluge-rtr.middlewares=chain-oauth@file"
       ## HTTP Services
@@ -281,7 +276,6 @@ services:
       ## HTTP Routers
       - "traefik.http.routers.jackett-rtr.entrypoints=https"
       - "traefik.http.routers.jackett-rtr.rule=Host(`jackett.$DOMAINNAME`)"
-      - "traefik.http.routers.jackett-rtr.tls=true"
       ## Middlewares
       - "traefik.http.routers.jackett-rtr.middlewares=chain-oauth@file"
       ## HTTP Services
@@ -310,7 +304,6 @@ services:
       ## HTTP Routers Auth
       - "traefik.http.routers.radarr-rtr.entrypoints=https"
       - "traefik.http.routers.radarr-rtr.rule=Host(`radarr.$DOMAINNAME`)"
-      - "traefik.http.routers.radarr-rtr.tls=true"
       ## Middlewares
       - "traefik.http.routers.radarr-rtr.middlewares=chain-oauth@file"
       ## HTTP Services
@@ -339,7 +332,6 @@ services:
       ## HTTP Routers Auth
       - "traefik.http.routers.sonarr-rtr.entrypoints=https"
       - "traefik.http.routers.sonarr-rtr.rule=Host(`sonarr.$DOMAINNAME`)"
-      - "traefik.http.routers.sonarr-rtr.tls=true"
       ## Middlewares
       - "traefik.http.routers.sonarr-rtr.middlewares=chain-oauth@file"
       ## HTTP Services
@@ -365,7 +357,6 @@ services:
       ## HTTP Routers Auth
       - "traefik.http.routers.ombi-rtr.entrypoints=https"
       - "traefik.http.routers.ombi-rtr.rule=Host(`ombi.$DOMAINNAME`)"
-      - "traefik.http.routers.ombi-rtr.tls=true"
       ## Middlewares
       - "traefik.http.routers.ombi-rtr.middlewares=chain-no-auth@file"
       ## HTTP Services
@@ -405,7 +396,6 @@ services:
       ## HTTP Routers 
       - "traefik.http.routers.plex-rtr.entrypoints=https"
       - "traefik.http.routers.plex-rtr.rule=Host(`plex.$DOMAINNAME`)"
-      - "traefik.http.routers.plex-rtr.tls=true"
       ## Middlewares
       - "traefik.http.routers.plex-rtr.middlewares=chain-no-auth@file"
       ## HTTP Services
@@ -435,7 +425,6 @@ services:
       ## HTTP Routers
       - "traefik.http.routers.glances-rtr.entrypoints=https"
       - "traefik.http.routers.glances-rtr.rule=Host(`glances.$DOMAINNAME`)"
-      - "traefik.http.routers.glances-rtr.tls=true"
       ## Middlewares
       - "traefik.http.routers.glances-rtr.middlewares=chain-oauth@file"
       ## HTTP Services
@@ -463,7 +452,6 @@ services:
       ## HTTP Routers Auth
       - "traefik.http.routers.sabnzbd-rtr.entrypoints=https"
       - "traefik.http.routers.sabnzbd-rtr.rule=Host(`sabnzbd.$DOMAINNAME`)"
-      - "traefik.http.routers.sabnzbd-rtr.tls=true"
       ## Middlewares
       - "traefik.http.routers.sabnzbd-rtr.middlewares=chain-oauth@file"
       ## HTTP Services
@@ -490,7 +478,6 @@ services:
       ## HTTP Routers
       - "traefik.http.routers.hydra-rtr.entrypoints=https"
       - "traefik.http.routers.hydra-rtr.rule=Host(`hydra.$DOMAINNAME`)"
-      - "traefik.http.routers.hydro-rtr.tls=true"
       ## Middlewares
       - "traefik.http.routers.hydra-rtr.middlewares=chain-oauth@file"
       ## HTTP Services
@@ -517,7 +504,6 @@ services:
       ## HTTP Routers
       - "traefik.http.routers.tautulli-rtr.entrypoints=https"
       - "traefik.http.routers.tautulli-rtr.rule=Host(`tautulli.$DOMAINNAME`)"
-      - "traefik.http.routers.tautulli-rtr.tls=true"
       ## Middlewares
       - "traefik.http.routers.tautulli-rtr.middlewares=chain-oauth@file"
       ## HTTP Services
