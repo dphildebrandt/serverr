@@ -2,7 +2,10 @@
 */
 !.gitignore
 !docker-compose.yml
-!traefik/rules/*
+!traefik2
+traefik2/*
+!traefik2/rules
+!traefik2/rules/*
 !README.md
 !.env.template
 !glances/glances.conf
