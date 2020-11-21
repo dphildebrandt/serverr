@@ -45,8 +45,6 @@ services:
     networks:
       - t2_proxy
       - socket_proxy
-    depends_on:
-      - socket-proxy
     security_opt:
       - no-new-privileges:true
     ports:
@@ -401,7 +399,7 @@ services:
       - PLEX_CLAIM="claim-ubgQ3b2yQCDKMgsfaSyU"
       - PLEX_UID=$PUID
       - PLEX_GID=$PGID
-      - ADVERTISE_IP=https://plex.$DOMAINNAME:443
+      - ADVERTISE_IP=http://192.168.1.29:32400/,https://plex.$DOMAINNAME:443/
     labels:
       - "traefik.enable=true"
       ## HTTP Routers 
