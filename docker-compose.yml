@@ -11,6 +11,23 @@ networks:
     external:
       name: socket_proxy
 
+#SECRETS:
+secrets:
+  namecheap_api_user:
+    file: $SECRETSDIR/namecheap_api_user
+  namecheap_api_key:
+    file: $SECRETSDIR/namecheap_api_key
+  google_client_id:
+    file: $SECRETSDIR/google_client_id
+  google_client_secret:
+    file: $SECRETSDIR/google_client_secret
+  oauth_secret:
+    file: $SECRETSDIR/oauth_secret
+  my_email:
+    file: $SECRETSDIR/my_email
+  plex_claim:
+    file: $SECRETSDIR/plex_claim
+
 # SERVICES
 services:
   traefik:
@@ -62,9 +79,12 @@ services:
       - $DOCKERDIR/traefik2/rules:/rules
       - $DOCKERDIR/traefik2/acme/acme.json:/acme.json  # mkdir acme folder and touch acme.json
       - $DOCKERDIR/traefik2/traefik.log:/traefik.log
+    secrets:
+      - namecheap_api_user
+      - namecheap_api_key
     environment:
-      NAMECHEAP_API_USER: $NAMECHEAP_API_USER
-      NAMECHEAP_API_KEY: $NAMECHEAP_API_KEY
+      NAMECHEAP_API_USER_FILE: /run/secrets/namecheap_api_user
+      NAMECHEAP_API_KEY_FILE: /run/secrets/namecheap_api_key
     labels:
       - "traefik.enable=true" 
       # HTTP-to-HTTPS Redirect
@@ -137,6 +157,10 @@ services:
       - t2_proxy
     security_opt:
       - no-new-privileges:true
+    secrets:
+      - google_client_id
+      - google_client_secret
+      - oauth_secret
     environment:
       - CLIENT_ID=$GOOGLE_CLIENT_ID
       - CLIENT_SECRET=$GOOGLE_CLIENT_SECRET
@@ -383,13 +407,15 @@ services:
       - "32410:32410/udp"
       - "32412:32412/udp"
       - "32413:32413/udp"
+    secrets:
+      - plex_claim
     environment:
-      - TZ=$TZ
-      - HOSTNAME="Docker-Plex"
-      - PLEX_CLAIM="claim-ubgQ3b2yQCDKMgsfaSyU"
-      - PLEX_UID=$PUID
-      - PLEX_GID=$PGID
-      - ADVERTISE_IP=http://192.168.1.29:32400/,https://plex.$DOMAINNAME:443/
+      TZ: $TZ
+      HOSTNAME: "Docker-Plex"
+      PLEX_CLAIM_FILE: /run/secrets/plex_claim
+      PLEX_UID: $PUID
+      PLEX_GID: $PGID
+      ADVERTISE_IP: http://$SERVER_IP:32400/,https://plex.$DOMAINNAME:443/
     labels:
       - "traefik.enable=true"
       ## HTTP Routers 

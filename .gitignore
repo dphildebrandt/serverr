@@ -9,3 +9,5 @@ traefik2/*
 !README.md
 !.env.template
 !glances/glances.conf
+!secrets
+secrets/*
