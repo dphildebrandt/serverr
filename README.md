@@ -37,7 +37,6 @@ Setup:
     1. Sonarr/Radarr using Hydra, Jackett, Sabnzbd, Deluge, and media locations
     1. Plex to read from media locations
     1. Ombi with Sonarr/Radarr/Plex
-    1. Portainer (follow comment about socket-proxy in `docker-compose.yml`)
     1. Tautulli with Plex
     1. Organizr to access it all from one easy domain
 1. Install UFW:

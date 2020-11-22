@@ -176,11 +176,10 @@ services:
     image: portainer/portainer-ce:latest
     container_name: portainer
     restart: unless-stopped
+    command: -H $SOCKET_PROXY
     networks:
       - t2_proxy
-      - socket_proxy  # make a socket-proxy:2375 endpoint in portainer
-    depends_on:
-      - socket-proxy
+      - socket_proxy 
     security_opt:
       - no-new-privileges:true
     volumes:
