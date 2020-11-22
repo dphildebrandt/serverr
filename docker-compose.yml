@@ -163,13 +163,12 @@ services:
       - "traefik.http.routers.oauth-rtr.middlewares=chain-oauth@file"
 
   portainer:
-    image: portainer/portainer:latest
+    image: portainer/portainer-ce:latest
     container_name: portainer
     restart: unless-stopped
-    command: --no-auth  # make a socket-proxy:2375 endpoint in portainer
     networks:
       - t2_proxy
-      - socket_proxy
+      - socket_proxy  # make a socket-proxy:2375 endpoint in portainer
     depends_on:
       - socket-proxy
     security_opt:
