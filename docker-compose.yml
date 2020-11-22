@@ -15,14 +15,6 @@ secrets:
     file: $SECRETSDIR/namecheap_api_user
   namecheap_api_key:
     file: $SECRETSDIR/namecheap_api_key
-  google_client_id:
-    file: $SECRETSDIR/google_client_id
-  google_client_secret:
-    file: $SECRETSDIR/google_client_secret
-  oauth_secret:
-    file: $SECRETSDIR/oauth_secret
-  my_email:
-    file: $SECRETSDIR/my_email
   plex_claim:
     file: $SECRETSDIR/plex_claim
 
@@ -155,10 +147,6 @@ services:
       - t2_proxy
     security_opt:
       - no-new-privileges:true
-    secrets:
-      - google_client_id
-      - google_client_secret
-      - oauth_secret
     environment:
       - CLIENT_ID=$GOOGLE_CLIENT_ID
       - CLIENT_SECRET=$GOOGLE_CLIENT_SECRET
