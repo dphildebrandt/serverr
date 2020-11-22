@@ -1,6 +1,5 @@
 version: "3.7"
 
-# NETWORKS
 networks:
   t2_proxy:
     external:
@@ -11,7 +10,6 @@ networks:
     external:
       name: socket_proxy
 
-#SECRETS:
 secrets:
   namecheap_api_user:
     file: $SECRETSDIR/namecheap_api_user
@@ -77,7 +75,7 @@ services:
         mode: host
     volumes:
       - $DOCKERDIR/traefik2/rules:/rules
-      - $DOCKERDIR/traefik2/acme/acme.json:/acme.json  # mkdir acme folder and touch acme.json
+      - $DOCKERDIR/traefik2/acme/acme.json:/acme.json
       - $DOCKERDIR/traefik2/traefik.log:/traefik.log
     secrets:
       - namecheap_api_user
