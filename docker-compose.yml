@@ -266,7 +266,7 @@ services:
   jackett:
     image: linuxserver/jackett:latest
     container_name: jackett
-    restart: always
+    restart: unless-stopped
     networks:
       - t2_proxy
     security_opt:
