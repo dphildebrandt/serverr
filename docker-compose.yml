@@ -291,7 +291,7 @@ services:
       - "traefik.http.services.jackett-svc.loadbalancer.server.port=9117"
 
   radarr:
-    image: linuxserver/radarr:nightly
+    image: linuxserver/radarr:latest
     container_name: radarr
     restart: unless-stopped
     networks:
