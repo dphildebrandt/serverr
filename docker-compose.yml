@@ -402,7 +402,7 @@ services:
       PLEX_CLAIM_FILE: /run/secrets/plex_claim
       PLEX_UID: $PUID
       PLEX_GID: $PGID
-      ADVERTISE_IP: http://$SERVER_IP:32400/,https://plex.$DOMAINNAME:443/
+      ADVERTISE_IP: http://$SERVER_IP:32400/,https://plex.$DOMAINNAME
     labels:
       - "traefik.enable=true"
       ## HTTP Routers 
