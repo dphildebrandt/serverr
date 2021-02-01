@@ -381,7 +381,7 @@ services:
       - no-new-privileges:true
     volumes:
       - $DOCKERDIR/plexms:/config
-      - $USERDIR/Downloads/plex_tmp:/transcode
+      - /dev/shm:/transcode  # offload transcoding to RAM
       - $MEDIADIR:/media
     ports:
       - "32400:32400/tcp"
@@ -392,8 +392,9 @@ services:
       - "32410:32410/udp"
       - "32412:32412/udp"
       - "32413:32413/udp"
+      - "32414:32414/udp"
     devices:
-      - /dev/dri:/dev/dri
+      - /dev/dri:/dev/dri  # for hardware transcoding
     secrets:
       - plex_claim
     environment:
