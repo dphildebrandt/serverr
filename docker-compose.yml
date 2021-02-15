@@ -513,7 +513,7 @@ services:
       - no-new-privileges:true
     volumes:
       - $DOCKERDIR/tautulli/config:/config
-      - $DOCKERDIR/tautulli/logs:/logs:ro
+      - $DOCKERDIR/plexms/Library/Application Support/Plex Media Server/Logs:/logs:ro  # For tautulli Plex log viewer
     environment:
       PUID: $PUID
       PGID: $PGID
