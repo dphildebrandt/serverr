@@ -28,7 +28,7 @@ secrets:
 services:
   traefik:
     container_name: traefik
-    image: traefik:latest
+    image: traefik
     restart: unless-stopped
     command:
       - --global.checkNewVersion=true
@@ -58,8 +58,8 @@ services:
       - --certificatesResolvers.dns-namecheap.acme.storage=/acme.json
       - --certificatesResolvers.dns-namecheap.acme.dnsChallenge.provider=namecheap
     networks:
-      - t2_proxy
-      - socket_proxy
+      t2_proxy:
+      socket_proxy:
     security_opt:
       - no-new-privileges:true
     ports:
@@ -99,10 +99,10 @@ services:
 
   socket-proxy:
     container_name: socket-proxy
-    image: fluencelabs/docker-socket-proxy:latest
+    image: tecnativa/docker-socket-proxy
     restart: always
     networks:
-      - socket_proxy
+      socket_proxy:
     privileged: true
     ports:
       - "127.0.0.1:2375:2375"
@@ -118,32 +118,24 @@ services:
       - AUTH=0
       - SECRETS=0
       - POST=1  # Watchtower
-      - DELETE=1  # Watchtower
       # GET options
       - BUILD=0
       - COMMIT=0
       - CONFIGS=0
-      - CONTAINERS=1 # Traefik, portainer, etc.
+      - CONTAINERS=1  # Traefik, portainer, etc.
       - DISTRIBUTION=0
       - EXEC=0
-      - IMAGES=1 # Portainer, watchtower
-      - INFO=1 # Portainer
-      - NETWORKS=1 # Portainer, watchtower
+      - IMAGES=1  # Portainer, watchtower
+      - INFO=1  # Portainer
+      - NETWORKS=1  # Portainer, watchtower
       - NODES=0
       - PLUGINS=0
-      - SERVICES=1 # Portainer
+      - SERVICES=1  # Portainer
       - SESSION=0
       - SWARM=0
       - SYSTEM=0
-      - TASKS=1 # Portaienr
-      - VOLUMES=1 # Portainer
-      # POST options
-      - CONTAINERS_CREATE=1   # Watchtower
-      - CONTAINERS_START=1    # Watchtower
-      - CONTAINERS_UPDATE=1   # Watchtower
-      # DELETE Options
-      - CONTAINERS_DELETE=1   # Watchtower
-      - IMAGES_DELETE=1       # Watchtower
+      - TASKS=1  # Portaienr
+      - VOLUMES=1  # Portainer
 
   oauth:
     container_name: oauth
