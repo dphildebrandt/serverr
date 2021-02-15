@@ -23,6 +23,12 @@ secrets:
     file: $DOCKERDIR/secrets/namecheap_api_key
   plex_claim:
     file: $DOCKERDIR/secrets/plex_claim
+
+  # This one loads the secret into the config, so you need the follow:
+  # provider.google.client-id=
+  # provider.google.client-secret=
+  # secret=
+  # whitelist=
   traefik-forward-auth:
     file: $DOCKERDIR/secrets/traefik-forward-auth
 

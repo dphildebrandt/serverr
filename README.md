@@ -7,17 +7,14 @@ Setup:
     1. `sudo setfacl -Rdm g:docker:rwx ~/htpc`
     1. `sudo chmod -R 775 ~/htpc`
 1. Make sure to have domain/DNS up to date, and API access to provider
-1. `mv .env.template .env` and fill out variables           
-1. If you have dynamic IP, setup cronjob to update your provider periodically: 
-    1. `crontab -e` 
+1. `mv .env.template .env` and fill out variables
+1. If you have dynamic IP, setup cronjob to update your provider periodically:
+    1. `crontab -e`
     1. `0 0 * * * curl "http://dynamicdns.park-your-domain.com/update?host=<HOST>&domain=<DOMAIN>&password=<DDNS_PASSWORD>"`
 1. Setup Traefik2 files:
-    1. `touch ~/htpc/traefik2/acme/acme.json` 
+    1. `touch ~/htpc/traefik2/acme/acme.json`
     1. `chmod 600 ~/htpc/traefik2/acme/acme.json`
     1. `touch ~/htpc/traefik2/traefik.log`
-1. Create docker networks:
-    1. `docker network create t2_proxy`
-    1. `docker network create socket_proxy`
 1. Setup docker secrets:
     1. `mkdir ~/htpc/secrets`
     1. `sudo chown root:root ~/htpc/secerts`
