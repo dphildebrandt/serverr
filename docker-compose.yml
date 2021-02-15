@@ -18,11 +18,11 @@ networks:
 
 secrets:
   namecheap_api_user:
-    file: $DOCKERDIR/secrets/namecheap_api_user
+    file: $DOCKER_DIR/secrets/namecheap_api_user
   namecheap_api_key:
-    file: $DOCKERDIR/secrets/namecheap_api_key
+    file: $DOCKER_DIR/secrets/namecheap_api_key
   plex_claim:
-    file: $DOCKERDIR/secrets/plex_claim
+    file: $DOCKER_DIR/secrets/plex_claim
 
   # This one loads the secret into the config, so you need the follow:
   # provider.google.client-id=
@@ -30,7 +30,7 @@ secrets:
   # secret=
   # whitelist=
   traefik-forward-auth:
-    file: $DOCKERDIR/secrets/traefik-forward-auth
+    file: $DOCKER_DIR/secrets/traefik-forward-auth
 
 # SERVICES
 services:
@@ -54,8 +54,8 @@ services:
       - --providers.docker=true
       - --providers.docker.endpoint=$SOCKET_PROXY
       - --entrypoints.https.http.tls.options=tls-opts@file
-      - --entrypoints.https.http.tls.domains[0].main=$DOMAINNAME
-      - --entrypoints.https.http.tls.domains[0].sans=*.$DOMAINNAME
+      - --entrypoints.https.http.tls.domains[0].main=$DOMAIN_NAME
+      - --entrypoints.https.http.tls.domains[0].sans=*.$DOMAIN_NAME
       - --providers.docker.exposedByDefault=false
       - --providers.docker.network=t2_proxy
       - --providers.docker.swarmMode=false
@@ -80,9 +80,9 @@ services:
         protocol: tcp
         mode: host
     volumes:
-      - $DOCKERDIR/traefik2/rules:/rules
-      - $DOCKERDIR/traefik2/acme/acme.json:/acme.json
-      - $DOCKERDIR/traefik2/traefik.log:/traefik.log
+      - $DOCKER_DIR/traefik2/rules:/rules
+      - $DOCKER_DIR/traefik2/acme/acme.json:/acme.json
+      - $DOCKER_DIR/traefik2/traefik.log:/traefik.log
     secrets:
       - namecheap_api_user
       - namecheap_api_key
@@ -98,7 +98,7 @@ services:
       - "traefik.http.middlewares.redirect-to-https.redirectscheme.scheme=https"
       # HTTP Routers
       - "traefik.http.routers.traefik-rtr.entrypoints=https"
-      - "traefik.http.routers.traefik-rtr.rule=Host(`traefik.$DOMAINNAME`)"
+      - "traefik.http.routers.traefik-rtr.rule=Host(`traefik.$DOMAIN_NAME`)"
       # - "traefik.http.routers.traefik-rtr.tls.certresolver=dns-namecheap"  # uncomment for first run of traefik, commented to force the use of wildcard certs
       # Services - API
       - "traefik.http.routers.traefik-rtr.service=api@internal"
@@ -155,9 +155,9 @@ services:
       - no-new-privileges:true
     environment:
       - CONFIG=/config
-      - COOKIE_DOMAIN=$DOMAINNAME
+      - COOKIE_DOMAIN=$DOMAIN_NAME
       - INSECURE_COOKIE=false
-      - AUTH_HOST=oauth.$DOMAINNAME
+      - AUTH_HOST=oauth.$DOMAIN_NAME
       - URL_PATH=/_oauth
       - LOG_LEVEL=warn
       - LOG_FORMAT=text
@@ -171,7 +171,7 @@ services:
       - "traefik.enable=true"
       # HTTP Routers
       - "traefik.http.routers.oauth-rtr.entrypoints=https"
-      - "traefik.http.routers.oauth-rtr.rule=Host(`oauth.$DOMAINNAME`)"
+      - "traefik.http.routers.oauth-rtr.rule=Host(`oauth.$DOMAIN_NAME`)"
       ## HTTP Services
       - "traefik.http.routers.oauth-rtr.service=oauth-svc"
       - "traefik.http.services.oauth-svc.loadbalancer.server.port=4181"
@@ -189,14 +189,14 @@ services:
     security_opt:
       - no-new-privileges:true
     volumes:
-      - $DOCKERDIR/portainer/data:/data
+      - $DOCKER_DIR/portainer/data:/data
     environment:
       - TZ=$TZ
     labels:
       - "traefik.enable=true"
       ## HTTP Routers
       - "traefik.http.routers.portainer-rtr.entrypoints=https"
-      - "traefik.http.routers.portainer-rtr.rule=Host(`portainer.$DOMAINNAME`)"
+      - "traefik.http.routers.portainer-rtr.rule=Host(`portainer.$DOMAIN_NAME`)"
       ## Middlewares
       - "traefik.http.routers.portainer-rtr.middlewares=chain-oauth@file"
       ## HTTP Services
@@ -226,7 +226,7 @@ services:
     security_opt:
       - no-new-privileges:true
     volumes:
-      - $DOCKERDIR/organizr:/config
+      - $DOCKER_DIR/organizr:/config
     environment:
       - PUID=$PUID
       - PGID=$PGID
@@ -235,7 +235,7 @@ services:
       - "traefik.enable=true"
       ## HTTP Routers
       - "traefik.http.routers.organizr-rtr.entrypoints=https"
-      - "traefik.http.routers.organizr-rtr.rule=Host(`$DOMAINNAME`, `www.$DOMAINNAME`)"
+      - "traefik.http.routers.organizr-rtr.rule=Host(`$DOMAIN_NAME`, `www.$DOMAIN_NAME`)"
       ## Middlewares
       - "traefik.http.routers.organizr-rtr.middlewares=chain-oauth@file"
       ## HTTP Services
@@ -255,14 +255,14 @@ services:
       - TZ=$TZ
       - UMASK_SET=022
     volumes:
-      - $DOCKERDIR/deluge:/config
-      - $USERDIR/Downloads:/downloads
+      - $DOCKER_DIR/deluge:/config
+      - $DOWNLOAD_DIR:/downloads
     restart: unless-stopped
     labels:
       - "traefik.enable=true"
       ## HTTP Routers
       - "traefik.http.routers.deluge-rtr.entrypoints=https"
-      - "traefik.http.routers.deluge-rtr.rule=Host(`deluge.$DOMAINNAME`)"
+      - "traefik.http.routers.deluge-rtr.rule=Host(`deluge.$DOMAIN_NAME`)"
       ## Middlewares
       - "traefik.http.routers.deluge-rtr.middlewares=chain-oauth@file"
       ## HTTP Services
@@ -278,8 +278,8 @@ services:
     security_opt:
       - no-new-privileges:true
     volumes:
-      - $DOCKERDIR/jackett:/config
-      - $USERDIR/Downloads:/downloads
+      - $DOCKER_DIR/jackett:/config
+      - $DOWNLOAD_DIR:/downloads
       - "/etc/localtime:/etc/localtime:ro"
     environment:
       - PUID=$PUID
@@ -289,7 +289,7 @@ services:
       - "traefik.enable=true"
       ## HTTP Routers
       - "traefik.http.routers.jackett-rtr.entrypoints=https"
-      - "traefik.http.routers.jackett-rtr.rule=Host(`jackett.$DOMAINNAME`)"
+      - "traefik.http.routers.jackett-rtr.rule=Host(`jackett.$DOMAIN_NAME`)"
       ## Middlewares
       - "traefik.http.routers.jackett-rtr.middlewares=chain-oauth@file"
       ## HTTP Services
@@ -305,9 +305,9 @@ services:
     security_opt:
       - no-new-privileges:true
     volumes:
-      - $DOCKERDIR/radarr:/config
-      - $USERDIR/Downloads:/downloads
-      - $MEDIADIR/movies:/movies
+      - $DOCKER_DIR/radarr:/config
+      - $DOWNLOAD_DIR:/downloads
+      - $MEDIA_DIR/movies:/movies
       - "/etc/localtime:/etc/localtime:ro"
     environment:
       - PUID=$PUID
@@ -317,7 +317,7 @@ services:
       - "traefik.enable=true"
       ## HTTP Routers Auth
       - "traefik.http.routers.radarr-rtr.entrypoints=https"
-      - "traefik.http.routers.radarr-rtr.rule=Host(`radarr.$DOMAINNAME`)"
+      - "traefik.http.routers.radarr-rtr.rule=Host(`radarr.$DOMAIN_NAME`)"
       ## Middlewares
       - "traefik.http.routers.radarr-rtr.middlewares=chain-oauth@file"
       ## HTTP Services
@@ -333,9 +333,9 @@ services:
     security_opt:
       - no-new-privileges:true
     volumes:
-      - $DOCKERDIR/sonarr:/config
-      - $USERDIR/Downloads:/downloads
-      - $MEDIADIR/tv:/tv
+      - $DOCKER_DIR/sonarr:/config
+      - $DOWNLOAD_DIR:/downloads
+      - $MEDIA_DIR/tv:/tv
       - "/etc/localtime:/etc/localtime:ro"
     environment:
       - PUID=$PUID
@@ -345,7 +345,7 @@ services:
       - "traefik.enable=true"
       ## HTTP Routers Auth
       - "traefik.http.routers.sonarr-rtr.entrypoints=https"
-      - "traefik.http.routers.sonarr-rtr.rule=Host(`sonarr.$DOMAINNAME`)"
+      - "traefik.http.routers.sonarr-rtr.rule=Host(`sonarr.$DOMAIN_NAME`)"
       ## Middlewares
       - "traefik.http.routers.sonarr-rtr.middlewares=chain-oauth@file"
       ## HTTP Services
@@ -361,7 +361,7 @@ services:
     security_opt:
       - no-new-privileges:true
     volumes:
-      - $DOCKERDIR/ombi:/config
+      - $DOCKER_DIR/ombi:/config
     environment:
       - PUID=$PUID
       - PGID=$PGID
@@ -370,7 +370,7 @@ services:
       - "traefik.enable=true"
       ## HTTP Routers Auth
       - "traefik.http.routers.ombi-rtr.entrypoints=https"
-      - "traefik.http.routers.ombi-rtr.rule=Host(`ombi.$DOMAINNAME`)"
+      - "traefik.http.routers.ombi-rtr.rule=Host(`ombi.$DOMAIN_NAME`)"
       ## Middlewares
       - "traefik.http.routers.ombi-rtr.middlewares=chain-no-auth@file"
       ## HTTP Services
@@ -386,9 +386,9 @@ services:
     security_opt:
       - no-new-privileges:true
     volumes:
-      - $DOCKERDIR/plexms:/config
+      - $DOCKER_DIR/plexms:/config
       - /dev/shm:/transcode  # offload transcoding to RAM
-      - $MEDIADIR:/media
+      - $MEDIA_DIR:/media
     ports:
       - "32400:32400/tcp"
       - "3005:3005/tcp"
@@ -409,12 +409,12 @@ services:
       PLEX_CLAIM_FILE: /run/secrets/plex_claim
       PLEX_UID: $PUID
       PLEX_GID: $PGID
-      ADVERTISE_IP: http://$SERVER_IP:32400/,https://plex.$DOMAINNAME
+      ADVERTISE_IP: http://$SERVER_IP:32400/,https://plex.$DOMAIN_NAME
     labels:
       - "traefik.enable=true"
       ## HTTP Routers
       - "traefik.http.routers.plex-rtr.entrypoints=https"
-      - "traefik.http.routers.plex-rtr.rule=Host(`plex.$DOMAINNAME`)"
+      - "traefik.http.routers.plex-rtr.rule=Host(`plex.$DOMAIN_NAME`)"
       ## Middlewares
       - "traefik.http.routers.plex-rtr.middlewares=chain-no-auth@file"
       ## HTTP Services
@@ -438,12 +438,12 @@ services:
       GLANCES_OPT: "-w --fs-free-space"
       DOCKER_HOST: $SOCKET_PROXY
     volumes:
-      - $DOCKERDIR/glances/glances.conf:/glances/conf/glances.conf
+      - $DOCKER_DIR/glances/glances.conf:/glances/conf/glances.conf
     labels:
       - "traefik.enable=true"
       ## HTTP Routers
       - "traefik.http.routers.glances-rtr.entrypoints=https"
-      - "traefik.http.routers.glances-rtr.rule=Host(`glances.$DOMAINNAME`)"
+      - "traefik.http.routers.glances-rtr.rule=Host(`glances.$DOMAIN_NAME`)"
       ## Middlewares
       - "traefik.http.routers.glances-rtr.middlewares=chain-oauth@file"
       ## HTTP Services
@@ -459,8 +459,8 @@ services:
     security_opt:
       - no-new-privileges:true
     volumes:
-      - $DOCKERDIR/sabnzbd:/config
-      - $USERDIR/Downloads:/downloads
+      - $DOCKER_DIR/sabnzbd:/config
+      - $DOWNLOAD_DIR:/downloads
     environment:
       PUID: $PUID
       PGID: $PGID
@@ -470,7 +470,7 @@ services:
       - "traefik.enable=true"
       ## HTTP Routers Auth
       - "traefik.http.routers.sabnzbd-rtr.entrypoints=https"
-      - "traefik.http.routers.sabnzbd-rtr.rule=Host(`sabnzbd.$DOMAINNAME`)"
+      - "traefik.http.routers.sabnzbd-rtr.rule=Host(`sabnzbd.$DOMAIN_NAME`)"
       ## Middlewares
       - "traefik.http.routers.sabnzbd-rtr.middlewares=chain-oauth@file"
       ## HTTP Services
@@ -486,8 +486,8 @@ services:
     security_opt:
       - no-new-privileges:true
     volumes:
-      - $DOCKERDIR/hydra2:/config
-      - $USERDIR/Downloads:/downloads
+      - $DOCKER_DIR/hydra2:/config
+      - $DOWNLOAD_DIR:/downloads
     environment:
       PUID: $PUID
       PGID: $PGID
@@ -496,7 +496,7 @@ services:
       - "traefik.enable=true"
       ## HTTP Routers
       - "traefik.http.routers.hydra-rtr.entrypoints=https"
-      - "traefik.http.routers.hydra-rtr.rule=Host(`hydra.$DOMAINNAME`)"
+      - "traefik.http.routers.hydra-rtr.rule=Host(`hydra.$DOMAIN_NAME`)"
       ## Middlewares
       - "traefik.http.routers.hydra-rtr.middlewares=chain-oauth@file"
       ## HTTP Services
@@ -512,8 +512,8 @@ services:
     security_opt:
       - no-new-privileges:true
     volumes:
-      - $DOCKERDIR/tautulli/config:/config
-      - $DOCKERDIR/plexms/Library/Application Support/Plex Media Server/Logs:/logs:ro  # For tautulli Plex log viewer
+      - $DOCKER_DIR/tautulli/config:/config
+      - $DOCKER_DIR/plexms/Library/Application Support/Plex Media Server/Logs:/logs:ro  # For tautulli Plex log viewer
     environment:
       PUID: $PUID
       PGID: $PGID
@@ -522,7 +522,7 @@ services:
       - "traefik.enable=true"
       ## HTTP Routers
       - "traefik.http.routers.tautulli-rtr.entrypoints=https"
-      - "traefik.http.routers.tautulli-rtr.rule=Host(`tautulli.$DOMAINNAME`)"
+      - "traefik.http.routers.tautulli-rtr.rule=Host(`tautulli.$DOMAIN_NAME`)"
       ## Middlewares
       - "traefik.http.routers.tautulli-rtr.middlewares=chain-oauth@file"
       ## HTTP Services
@@ -538,9 +538,9 @@ services:
     security_opt:
       - no-new-privileges:true
     volumes:
-      - $DOCKERDIR/bazarr:/config
-      - $MEDIADIR/tv:/tv
-      - $MEDIADIR/movies:/movies
+      - $DOCKER_DIR/bazarr:/config
+      - $MEDIA_DIR/tv:/tv
+      - $MEDIA_DIR/movies:/movies
     environment:
       PUID: $PUID
       PGID: $PGID
@@ -549,7 +549,7 @@ services:
       - "traefik.enable=true"
       ## HTTP ROuters
       - "traefik.http.routers.bazarr-rtr.entrypoints=https"
-      - "traefik.http.routers.bazarr-rtr.rule=Host(`bazarr.$DOMAINNAME`)"
+      - "traefik.http.routers.bazarr-rtr.rule=Host(`bazarr.$DOMAIN_NAME`)"
       ## Middlewares
       - "traefik.http.routers.bazarr-rtr.middlewares=chain-oauth@file"
       ## HTTP Services
