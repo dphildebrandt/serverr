@@ -23,6 +23,8 @@ secrets:
     file: $DOCKERDIR/secrets/namecheap_api_key
   plex_claim:
     file: $DOCKERDIR/secrets/plex_claim
+  traefik-forward-auth:
+    file: $DOCKERDIR/secrets/traefik-forward-auth
 
 # SERVICES
 services:
@@ -58,8 +60,8 @@ services:
       - --certificatesResolvers.dns-namecheap.acme.storage=/acme.json
       - --certificatesResolvers.dns-namecheap.acme.dnsChallenge.provider=namecheap
     networks:
-      t2_proxy:
-      socket_proxy:
+      - t2_proxy
+      - socket_proxy
     security_opt:
       - no-new-privileges:true
     ports:
@@ -102,7 +104,7 @@ services:
     image: tecnativa/docker-socket-proxy
     restart: always
     networks:
-      socket_proxy:
+      - socket_proxy
     privileged: true
     ports:
       - "127.0.0.1:2375:2375"
@@ -139,26 +141,26 @@ services:
 
   oauth:
     container_name: oauth
-    image: thomseddon/traefik-forward-auth:latest
+    image: thomseddon/traefik-forward-auth
     restart: unless-stopped
     networks:
       - t2_proxy
     security_opt:
       - no-new-privileges:true
     environment:
-      - CLIENT_ID=$GOOGLE_CLIENT_ID
-      - CLIENT_SECRET=$GOOGLE_CLIENT_SECRET
-      - SECRET=$OAUTH_SECRET
+      - CONFIG=/config
       - COOKIE_DOMAIN=$DOMAINNAME
       - INSECURE_COOKIE=false
       - AUTH_HOST=oauth.$DOMAINNAME
       - URL_PATH=/_oauth
-      - WHITELIST=$MY_EMAIL
       - LOG_LEVEL=warn
       - LOG_FORMAT=text
       - LIFETIME=2592000  # 30 days
       - DEFAULT_ACTION=auth
       - DEFAULT_PROVIDER=google
+    secrets:
+      - source: traefik-forward-auth
+        target: /config
     labels:
       - "traefik.enable=true"
       # HTTP Routers
