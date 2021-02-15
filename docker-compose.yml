@@ -366,6 +366,42 @@ services:
       - "traefik.http.routers.sonarr-rtr-bypass.service=sonarr-svc"
       - "traefik.http.services.sonarr-svc.loadbalancer.server.port=8989"
 
+  lidarr:
+    image: linuxserver/lidarr:latest
+    container_name: lidarr
+    restart: unless-stopped
+    networks:
+      - t2_proxy
+    security_opt:
+      - no-new-privileges:true
+    volumes:
+      - $DOCKER_DIR/lidarr:/config
+      - $DOWNLOAD_DIR:/downloads
+      - $MEDIA_DIR/music:/music
+      - "/etc/localtime:/etc/localtime:ro"
+    environment:
+      PUID: $PUID
+      PGID: $PGID
+      TZ: $TZ
+    labels:
+      - "traefik.enable=true"
+      ## HTTP Routers Auth Bypass
+      - "traefik.http.routers.lidarr-rtr-bypass.entrypoints=https"
+      - "traefik.http.routers.lidarr-rtr-bypass.rule=Host(`lidarr.$DOMAIN_NAME`) && (Headers(`X-Api-Key`, `$LIDARR_API_KEY`) || Query(`apikey`, `$LIDARR_API_KEY`))"
+      - "traefik.http.routers.lidarr-rtr-bypass.priority=100"
+      ## HTTP Routers Auth
+      - "traefik.http.routers.lidarr-rtr.entrypoints=https"
+      - "traefik.http.routers.lidarr-rtr.rule=Host(`lidarr.$DOMAIN_NAME`)"
+      - "traefik.http.routers.lidarr-rtr.priority=99"
+      ## Middlewares
+      - "traefik.http.routers.lidarr-rtr-bypass.middlewares=chain-no-auth@file"
+      - "traefik.http.routers.lidarr-rtr.middlewares=chain-oauth@file"
+      ## HTTP Services
+      - "traefik.http.routers.lidarr-rtr.service=lidarr-svc"
+      - "traefik.http.routers.lidarr-rtr-bypass.service=lidarr-svc"
+      - "traefik.http.services.lidarr-svc.loadbalancer.server.port=8686"
+
+
   ombi:
     image: linuxserver/ombi:latest
     container_name: ombi
