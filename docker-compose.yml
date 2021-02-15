@@ -18,11 +18,11 @@ networks:
 
 secrets:
   namecheap_api_user:
-    file: $SECRETSDIR/namecheap_api_user
+    file: $DOCKERDIR/secrets/namecheap_api_user
   namecheap_api_key:
-    file: $SECRETSDIR/namecheap_api_key
+    file: $DOCKERDIR/secrets/namecheap_api_key
   plex_claim:
-    file: $SECRETSDIR/plex_claim
+    file: $DOCKERDIR/secrets/plex_claim
 
 # SERVICES
 services:
@@ -82,7 +82,7 @@ services:
       NAMECHEAP_API_USER_FILE: /run/secrets/namecheap_api_user
       NAMECHEAP_API_KEY_FILE: /run/secrets/namecheap_api_key
     labels:
-      - "traefik.enable=true" 
+      - "traefik.enable=true"
       # HTTP-to-HTTPS Redirect
       - "traefik.http.routers.http-catchall.entrypoints=http"
       - "traefik.http.routers.http-catchall.rule=HostRegexp(`{host:.+}`)"
@@ -95,14 +95,14 @@ services:
       # Services - API
       - "traefik.http.routers.traefik-rtr.service=api@internal"
       # Middlewares
-      - "traefik.http.routers.traefik-rtr.middlewares=chain-oauth@file" 
-  
+      - "traefik.http.routers.traefik-rtr.middlewares=chain-oauth@file"
+
   socket-proxy:
     container_name: socket-proxy
     image: fluencelabs/docker-socket-proxy:latest
     restart: always
     networks:
-      - socket_proxy  
+      - socket_proxy
     privileged: true
     ports:
       - "127.0.0.1:2375:2375"
@@ -164,7 +164,7 @@ services:
       - WHITELIST=$MY_EMAIL
       - LOG_LEVEL=warn
       - LOG_FORMAT=text
-      - LIFETIME=2592000  # 30 days  
+      - LIFETIME=2592000  # 30 days
       - DEFAULT_ACTION=auth
       - DEFAULT_PROVIDER=google
     labels:
@@ -185,7 +185,7 @@ services:
     command: -H $SOCKET_PROXY
     networks:
       - t2_proxy
-      - socket_proxy 
+      - socket_proxy
     security_opt:
       - no-new-privileges:true
     volumes:
@@ -215,7 +215,7 @@ services:
     environment:
       - TZ=$TZ
       - DOCKER_HOST=$SOCKET_PROXY
-    command: -s "0 0 0 * * *" --cleanup  
+    command: -s "0 0 0 * * *" --cleanup
 
   organizr:
     container_name: organizr
@@ -412,7 +412,7 @@ services:
       ADVERTISE_IP: http://$SERVER_IP:32400/,https://plex.$DOMAINNAME
     labels:
       - "traefik.enable=true"
-      ## HTTP Routers 
+      ## HTTP Routers
       - "traefik.http.routers.plex-rtr.entrypoints=https"
       - "traefik.http.routers.plex-rtr.rule=Host(`plex.$DOMAINNAME`)"
       ## Middlewares
