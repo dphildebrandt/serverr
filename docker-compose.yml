@@ -547,7 +547,7 @@ services:
       TZ: $TZ
     labels:
       - "traefik.enable=true"
-      ## HTTP ROuters
+      ## HTTP Routers
       - "traefik.http.routers.bazarr-rtr.entrypoints=https"
       - "traefik.http.routers.bazarr-rtr.rule=Host(`bazarr.$DOMAIN_NAME`)"
       ## Middlewares
