@@ -36,7 +36,7 @@ secrets:
 services:
   traefik:
     container_name: traefik
-    image: traefik
+    image: traefik:latest
     restart: unless-stopped
     command:
       - --global.checkNewVersion=true
@@ -107,7 +107,7 @@ services:
 
   socket-proxy:
     container_name: socket-proxy
-    image: tecnativa/docker-socket-proxy
+    image: tecnativa/docker-socket-proxy:latest
     restart: always
     networks:
       - socket_proxy
@@ -147,7 +147,7 @@ services:
 
   oauth:
     container_name: oauth
-    image: thomseddon/traefik-forward-auth
+    image: thomseddon/traefik-forward-auth:latest
     restart: unless-stopped
     networks:
       - t2_proxy
