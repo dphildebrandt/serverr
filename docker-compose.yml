@@ -403,7 +403,7 @@ services:
 
 
   ombi:
-    image: linuxserver/ombi:latest
+    image: linuxserver/ombi:development
     container_name: ombi
     restart: unless-stopped
     networks:
