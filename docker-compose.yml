@@ -32,8 +32,10 @@ secrets:
   traefik-forward-auth:
     file: $DOCKER_DIR/secrets/traefik-forward-auth
 
-# SERVICES
 services:
+
+  # FRONTENDS
+
   traefik:
     container_name: traefik
     image: traefik:latest
@@ -178,45 +180,6 @@ services:
       # Middlewares
       - "traefik.http.routers.oauth-rtr.middlewares=chain-oauth@file"
 
-  portainer:
-    image: portainer/portainer-ce:latest
-    container_name: portainer
-    restart: unless-stopped
-    command: -H $SOCKET_PROXY
-    networks:
-      - t2_proxy
-      - socket_proxy
-    security_opt:
-      - no-new-privileges:true
-    volumes:
-      - $DOCKER_DIR/portainer/data:/data
-    environment:
-      - TZ=$TZ
-    labels:
-      - "traefik.enable=true"
-      # HTTP Routers
-      - "traefik.http.routers.portainer-rtr.entrypoints=https"
-      - "traefik.http.routers.portainer-rtr.rule=Host(`portainer.$DOMAIN_NAME`)"
-      # Middlewares
-      - "traefik.http.routers.portainer-rtr.middlewares=chain-oauth@file"
-      # HTTP Services
-      - "traefik.http.routers.portainer-rtr.service=portainer-svc"
-      - "traefik.http.services.portainer-svc.loadbalancer.server.port=9000"
-
-  watchtower:
-    container_name: watchtower
-    restart: unless-stopped
-    image: containrrr/watchtower:latest
-    networks:
-      - default
-      - socket_proxy
-    depends_on:
-      - socket-proxy
-    environment:
-      - TZ=$TZ
-      - DOCKER_HOST=$SOCKET_PROXY
-    command: -s "0 0 0 * * *" --cleanup
-
   organizr:
     container_name: organizr
     image: organizr/organizr:latest
@@ -241,6 +204,63 @@ services:
       # HTTP Services
       - "traefik.http.routers.organizr-rtr.service=organizr-svc"
       - "traefik.http.services.organizr-svc.loadbalancer.server.port=80"
+
+  overseerr:
+    image: sctx/overseerr:latest
+    container_name: overseerr
+    restart: unless-stopped
+    networks:
+      - t2_proxy
+    security_opt:
+      - no-new-privileges:true
+    volumes:
+      - $DOCKER_DIR/overseerr:/app/config
+    environment:
+      PUID: $PUID
+      PGID: $PGID
+      TZ: $TZ
+    labels:
+      - "traefik.enable=true"
+      # HTTP Routers
+      - "traefik.http.routers.overseerr-rtr.entrypoints=https"
+      - "traefik.http.routers.overseerr-rtr.rule=Host(`request.$DOMAIN_NAME`) || HOST(`ombi.$DOMAIN_NAME`)"
+      - "traefik.http.middlewares.ombi-redirect.redirectregex.regex=^(https?://)ombi.$DOMAIN_NAME"
+      - "traefik.http.middlewares.ombi-redirect.redirectregex.replacement=$${1}request.$DOMAIN_NAME"
+      - "traefik.http.middlewares.ombi-redirect.redirectregex.permanent=true"
+      # Middlewares
+      - "traefik.http.routers.overseerr-rtr.middlewares=chain-no-auth@file,ombi-redirect"
+      # HTTP Services
+      - "traefik.http.routers.overseerr-rtr.service=overseerr-svc"
+      - "traefik.http.services.overseerr-svc.loadbalancer.server.port=5055"
+
+  # DOWNLOADERS
+
+  sabnzbd:
+    image: linuxserver/sabnzbd:latest
+    container_name: sabnzbd
+    restart: unless-stopped
+    networks:
+      - t2_proxy
+    security_opt:
+      - no-new-privileges:true
+    volumes:
+      - $DOCKER_DIR/sabnzbd:/config
+      - $DOWNLOAD_DIR:/downloads
+    environment:
+      PUID: $PUID
+      PGID: $PGID
+      TZ: $TZ
+      UMASK_SET: 002
+    labels:
+      - "traefik.enable=true"
+      # HTTP Routers Auth
+      - "traefik.http.routers.sabnzbd-rtr.entrypoints=https"
+      - "traefik.http.routers.sabnzbd-rtr.rule=Host(`sabnzbd.$DOMAIN_NAME`)"
+      # Middlewares
+      - "traefik.http.routers.sabnzbd-rtr.middlewares=chain-oauth@file"
+      # HTTP Services
+      - "traefik.http.routers.sabnzbd-rtr.service=sabnzbd-svc"
+      - "traefik.http.services.sabnzbd-svc.loadbalancer.server.port=8080"
 
   deluge:
     image: linuxserver/deluge:latest
@@ -269,6 +289,34 @@ services:
       - "traefik.http.routers.deluge-rtr.service=deluge-svc"
       - "traefik.http.services.deluge-svc.loadbalancer.server.port=8112"
 
+  # INDEXERS
+
+  hydra:
+    image: linuxserver/nzbhydra2:latest
+    container_name: hydra
+    restart: unless-stopped
+    networks:
+      - t2_proxy
+    security_opt:
+      - no-new-privileges:true
+    volumes:
+      - $DOCKER_DIR/hydra2:/config
+      - $DOWNLOAD_DIR:/downloads
+    environment:
+      PUID: $PUID
+      PGID: $PGID
+      TZ: $TZ
+    labels:
+      - "traefik.enable=true"
+      # HTTP Routers
+      - "traefik.http.routers.hydra-rtr.entrypoints=https"
+      - "traefik.http.routers.hydra-rtr.rule=Host(`hydra.$DOMAIN_NAME`)"
+      # Middlewares
+      - "traefik.http.routers.hydra-rtr.middlewares=chain-oauth@file"
+      # HTTP Services
+      - "traefik.http.routers.hydra-rtr.service=hydra-svc"
+      - "traefik.http.services.hydra-svc.loadbalancer.server.port=5076"
+
   jackett:
     image: linuxserver/jackett:latest
     container_name: jackett
@@ -295,6 +343,8 @@ services:
       # HTTP Services
       - "traefik.http.routers.jackett-rtr.service=jackett-svc"
       - "traefik.http.services.jackett-svc.loadbalancer.server.port=9117"
+
+  # PVRS
 
   radarr:
     image: linuxserver/radarr:latest
@@ -401,16 +451,18 @@ services:
       - "traefik.http.routers.lidarr-rtr-bypass.service=lidarr-svc"
       - "traefik.http.services.lidarr-svc.loadbalancer.server.port=8686"
 
-  overseerr:
-    image: sctx/overseerr:latest
-    container_name: overseerr
+  bazarr:
+    image: linuxserver/bazarr:latest
+    container_name: bazarr
     restart: unless-stopped
     networks:
       - t2_proxy
     security_opt:
       - no-new-privileges:true
     volumes:
-      - $DOCKER_DIR/overseerr:/app/config
+      - $DOCKER_DIR/bazarr:/config
+      - $MEDIA_DIR/tv:/tv
+      - $MEDIA_DIR/movies:/movies
     environment:
       PUID: $PUID
       PGID: $PGID
@@ -418,17 +470,16 @@ services:
     labels:
       - "traefik.enable=true"
       # HTTP Routers
-      - "traefik.http.routers.overseerr-rtr.entrypoints=https"
-      - "traefik.http.routers.overseerr-rtr.rule=Host(`request.$DOMAIN_NAME`) || HOST(`ombi.$DOMAIN_NAME`)"
-      - "traefik.http.middlewares.ombi-redirect.redirectregex.regex=^(https?://)ombi.$DOMAIN_NAME"
-      - "traefik.http.middlewares.ombi-redirect.redirectregex.replacement=$${1}request.$DOMAIN_NAME"
-      - "traefik.http.middlewares.ombi-redirect.redirectregex.permanent=true"
+      - "traefik.http.routers.bazarr-rtr.entrypoints=https"
+      - "traefik.http.routers.bazarr-rtr.rule=Host(`bazarr.$DOMAIN_NAME`)"
       # Middlewares
-      - "traefik.http.routers.overseerr-rtr.middlewares=chain-no-auth@file,ombi-redirect"
+      - "traefik.http.routers.bazarr-rtr.middlewares=chain-oauth@file"
       # HTTP Services
-      - "traefik.http.routers.overseerr-rtr.service=overseerr-svc"
-      - "traefik.http.services.overseerr-svc.loadbalancer.server.port=5055"
-  
+      - "traefik.http.routers.bazarr-rtr.service=bazarr-svc"
+      - "traefik.http.services.bazarr-svc.loadbalancer.server.port=6767"
+
+  # MEDIA
+
   plexms:
     image: plexinc/pms-docker:latest
     container_name: plexms
@@ -473,6 +524,59 @@ services:
       - "traefik.http.routers.plex-rtr.service=plex-svc"
       - "traefik.http.services.plex-svc.loadbalancer.server.port=32400"
 
+  tautulli:
+    image: linuxserver/tautulli:latest
+    container_name: tautulli
+    restart: unless-stopped
+    networks:
+      - t2_proxy
+    security_opt:
+      - no-new-privileges:true
+    volumes:
+      - $DOCKER_DIR/tautulli/config:/config
+      - $DOCKER_DIR/plexms/Library/Application Support/Plex Media Server/Logs:/logs:ro  # For tautulli Plex log viewer
+    environment:
+      PUID: $PUID
+      PGID: $PGID
+      TZ: $TZ
+    labels:
+      - "traefik.enable=true"
+      # HTTP Routers
+      - "traefik.http.routers.tautulli-rtr.entrypoints=https"
+      - "traefik.http.routers.tautulli-rtr.rule=Host(`tautulli.$DOMAIN_NAME`)"
+      # Middlewares
+      - "traefik.http.routers.tautulli-rtr.middlewares=chain-oauth@file"
+      # HTTP Services
+      - "traefik.http.routers.tautulli-rtr.service=tautulli-svc"
+      - "traefik.http.services.tautulli-svc.loadbalancer.server.port=8181"
+
+  # UTILITY
+
+  portainer:
+    image: portainer/portainer-ce:latest
+    container_name: portainer
+    restart: unless-stopped
+    command: -H $SOCKET_PROXY
+    networks:
+      - t2_proxy
+      - socket_proxy
+    security_opt:
+      - no-new-privileges:true
+    volumes:
+      - $DOCKER_DIR/portainer/data:/data
+    environment:
+      - TZ=$TZ
+    labels:
+      - "traefik.enable=true"
+      # HTTP Routers
+      - "traefik.http.routers.portainer-rtr.entrypoints=https"
+      - "traefik.http.routers.portainer-rtr.rule=Host(`portainer.$DOMAIN_NAME`)"
+      # Middlewares
+      - "traefik.http.routers.portainer-rtr.middlewares=chain-oauth@file"
+      # HTTP Services
+      - "traefik.http.routers.portainer-rtr.service=portainer-svc"
+      - "traefik.http.services.portainer-svc.loadbalancer.server.port=9000"
+
   glances:
     image: nicolargo/glances:latest
     container_name: glances
@@ -503,109 +607,17 @@ services:
       - "traefik.http.routers.glances-rtr.service=glances-svc"
       - "traefik.http.services.glances-svc.loadbalancer.server.port=61208"
 
-  sabnzbd:
-    image: linuxserver/sabnzbd:latest
-    container_name: sabnzbd
+  watchtower:
+    container_name: watchtower
     restart: unless-stopped
+    image: containrrr/watchtower:latest
     networks:
-      - t2_proxy
-    security_opt:
-      - no-new-privileges:true
-    volumes:
-      - $DOCKER_DIR/sabnzbd:/config
-      - $DOWNLOAD_DIR:/downloads
+      - default
+      - socket_proxy
+    depends_on:
+      - socket-proxy
     environment:
-      PUID: $PUID
-      PGID: $PGID
-      TZ: $TZ
-      UMASK_SET: 002
-    labels:
-      - "traefik.enable=true"
-      # HTTP Routers Auth
-      - "traefik.http.routers.sabnzbd-rtr.entrypoints=https"
-      - "traefik.http.routers.sabnzbd-rtr.rule=Host(`sabnzbd.$DOMAIN_NAME`)"
-      # Middlewares
-      - "traefik.http.routers.sabnzbd-rtr.middlewares=chain-oauth@file"
-      # HTTP Services
-      - "traefik.http.routers.sabnzbd-rtr.service=sabnzbd-svc"
-      - "traefik.http.services.sabnzbd-svc.loadbalancer.server.port=8080"
-
-  hydra:
-    image: linuxserver/nzbhydra2:latest
-    container_name: hydra
-    restart: unless-stopped
-    networks:
-      - t2_proxy
-    security_opt:
-      - no-new-privileges:true
-    volumes:
-      - $DOCKER_DIR/hydra2:/config
-      - $DOWNLOAD_DIR:/downloads
-    environment:
-      PUID: $PUID
-      PGID: $PGID
-      TZ: $TZ
-    labels:
-      - "traefik.enable=true"
-      # HTTP Routers
-      - "traefik.http.routers.hydra-rtr.entrypoints=https"
-      - "traefik.http.routers.hydra-rtr.rule=Host(`hydra.$DOMAIN_NAME`)"
-      # Middlewares
-      - "traefik.http.routers.hydra-rtr.middlewares=chain-oauth@file"
-      # HTTP Services
-      - "traefik.http.routers.hydra-rtr.service=hydra-svc"
-      - "traefik.http.services.hydra-svc.loadbalancer.server.port=5076"
-
-  tautulli:
-    image: linuxserver/tautulli:latest
-    container_name: tautulli
-    restart: unless-stopped
-    networks:
-      - t2_proxy
-    security_opt:
-      - no-new-privileges:true
-    volumes:
-      - $DOCKER_DIR/tautulli/config:/config
-      - $DOCKER_DIR/plexms/Library/Application Support/Plex Media Server/Logs:/logs:ro  # For tautulli Plex log viewer
-    environment:
-      PUID: $PUID
-      PGID: $PGID
-      TZ: $TZ
-    labels:
-      - "traefik.enable=true"
-      # HTTP Routers
-      - "traefik.http.routers.tautulli-rtr.entrypoints=https"
-      - "traefik.http.routers.tautulli-rtr.rule=Host(`tautulli.$DOMAIN_NAME`)"
-      # Middlewares
-      - "traefik.http.routers.tautulli-rtr.middlewares=chain-oauth@file"
-      # HTTP Services
-      - "traefik.http.routers.tautulli-rtr.service=tautulli-svc"
-      - "traefik.http.services.tautulli-svc.loadbalancer.server.port=8181"
-
-  bazarr:
-    image: linuxserver/bazarr:latest
-    container_name: bazarr
-    restart: unless-stopped
-    networks:
-      - t2_proxy
-    security_opt:
-      - no-new-privileges:true
-    volumes:
-      - $DOCKER_DIR/bazarr:/config
-      - $MEDIA_DIR/tv:/tv
-      - $MEDIA_DIR/movies:/movies
-    environment:
-      PUID: $PUID
-      PGID: $PGID
-      TZ: $TZ
-    labels:
-      - "traefik.enable=true"
-      # HTTP Routers
-      - "traefik.http.routers.bazarr-rtr.entrypoints=https"
-      - "traefik.http.routers.bazarr-rtr.rule=Host(`bazarr.$DOMAIN_NAME`)"
-      # Middlewares
-      - "traefik.http.routers.bazarr-rtr.middlewares=chain-oauth@file"
-      # HTTP Services
-      - "traefik.http.routers.bazarr-rtr.service=bazarr-svc"
-      - "traefik.http.services.bazarr-svc.loadbalancer.server.port=6767"
+      - TZ=$TZ
+      - DOCKER_HOST=$SOCKET_PROXY
+    command: -s "0 0 0 * * *" --cleanup
 
