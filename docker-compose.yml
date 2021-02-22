@@ -585,8 +585,6 @@ services:
     networks:
       - t2_proxy
       - socket_proxy
-    depends_on:
-      - socket-proxy
     security_opt:
       - no-new-privileges:true
     pid: host
@@ -612,10 +610,7 @@ services:
     restart: unless-stopped
     image: containrrr/watchtower:latest
     networks:
-      - default
       - socket_proxy
-    depends_on:
-      - socket-proxy
     environment:
       - TZ=$TZ
       - DOCKER_HOST=$SOCKET_PROXY
