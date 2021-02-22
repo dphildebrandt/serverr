@@ -198,9 +198,12 @@ services:
       - "traefik.enable=true"
       # HTTP Routers
       - "traefik.http.routers.organizr-rtr.entrypoints=https"
-      - "traefik.http.routers.organizr-rtr.rule=Host(`$DOMAIN_NAME`, `www.$DOMAIN_NAME`)"
+      - "traefik.http.routers.organizr-rtr.rule=Host(`$DOMAIN_NAME`) || Host(`www.$DOMAIN_NAME`)"
       # Middlewares
-      - "traefik.http.routers.organizr-rtr.middlewares=chain-oauth@file"
+      - "traefik.http.middlewares.organizr-redirect.redirectregex.regex=^https?://$DOMAIN_NAME(/.*)?$$"
+      - "traefik.http.middlewares.organizr-redirect.redirectregex.replacement=https://www.$DOMAIN_NAME$${1}"
+      - "traefik.http.middlewares.organizr-redirect.redirectregex.permanent=true"
+      - "traefik.http.routers.organizr-rtr.middlewares=chain-oauth@file,organizr-redirect"
       # HTTP Services
       - "traefik.http.routers.organizr-rtr.service=organizr-svc"
       - "traefik.http.services.organizr-svc.loadbalancer.server.port=80"
@@ -224,10 +227,10 @@ services:
       # HTTP Routers
       - "traefik.http.routers.overseerr-rtr.entrypoints=https"
       - "traefik.http.routers.overseerr-rtr.rule=Host(`request.$DOMAIN_NAME`) || HOST(`ombi.$DOMAIN_NAME`)"
-      - "traefik.http.middlewares.ombi-redirect.redirectregex.regex=^(https?://)ombi.$DOMAIN_NAME"
-      - "traefik.http.middlewares.ombi-redirect.redirectregex.replacement=$${1}request.$DOMAIN_NAME"
-      - "traefik.http.middlewares.ombi-redirect.redirectregex.permanent=true"
       # Middlewares
+      - "traefik.http.middlewares.ombi-redirect.redirectregex.regex=^https?://ombi.$DOMAIN_NAME(/.*)?$$"
+      - "traefik.http.middlewares.ombi-redirect.redirectregex.replacement=https://request.$DOMAIN_NAME"
+      - "traefik.http.middlewares.ombi-redirect.redirectregex.permanent=true"
       - "traefik.http.routers.overseerr-rtr.middlewares=chain-no-auth@file,ombi-redirect"
       # HTTP Services
       - "traefik.http.routers.overseerr-rtr.service=overseerr-svc"
