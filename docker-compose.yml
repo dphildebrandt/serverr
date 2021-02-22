@@ -619,5 +619,5 @@ services:
     environment:
       - TZ=$TZ
       - DOCKER_HOST=$SOCKET_PROXY
-    command: -s "0 0 0 * * *" --cleanup
+    command: -s "0 0 3 * * *" --cleanup
 
