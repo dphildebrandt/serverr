@@ -179,34 +179,34 @@ services:
       - "traefik.http.services.oauth-svc.loadbalancer.server.port=4181"
       # Middlewares
       - "traefik.http.routers.oauth-rtr.middlewares=chain-oauth@file"
-
-  organizr:
-    container_name: organizr
-    image: organizr/organizr:latest
+ 
+  heimdall:
+    container_name: heimdall
+    image: linuxserver/heimdall:latest
     restart: unless-stopped
     networks:
       - t2_proxy
     security_opt:
       - no-new-privileges:true
     volumes:
-      - $DOCKER_DIR/organizr:/config
+      - $DOCKER_DIR/heimdall:/config
     environment:
-      - PUID=$PUID
-      - PGID=$PGID
-      - TZ=$TZ
+      PUID: $PUID
+      PGID: $PGID
+      TZ: $TZ
     labels:
       - "traefik.enable=true"
-      # HTTP Routers
-      - "traefik.http.routers.organizr-rtr.entrypoints=https"
-      - "traefik.http.routers.organizr-rtr.rule=Host(`$DOMAIN_NAME`) || Host(`www.$DOMAIN_NAME`)"
-      # Middlewares
-      - "traefik.http.middlewares.organizr-redirect.redirectregex.regex=^https?://$DOMAIN_NAME(/.*)?$$"
-      - "traefik.http.middlewares.organizr-redirect.redirectregex.replacement=https://www.$DOMAIN_NAME$${1}"
-      - "traefik.http.middlewares.organizr-redirect.redirectregex.permanent=true"
-      - "traefik.http.routers.organizr-rtr.middlewares=chain-oauth@file,organizr-redirect"
-      # HTTP Services
-      - "traefik.http.routers.organizr-rtr.service=organizr-svc"
-      - "traefik.http.services.organizr-svc.loadbalancer.server.port=80"
+      ## HTTP Routers
+      - "traefik.http.routers.heimdall-rtr.entrypoints=https"
+      - "traefik.http.routers.heimdall-rtr.rule=Host(`$DOMAIN_NAME`) || Host(`www.$DOMAIN_NAME`)"
+      ## Middlewares
+      - "traefik.http.middlewares.heimdall-redirect.redirectregex.regex=^https?://$DOMAIN_NAME(/.*)?$$"
+      - "traefik.http.middlewares.heimdall-redirect.redirectregex.replacement=https://www.$DOMAIN_NAME$${1}"
+      - "traefik.http.middlewares.heimdall-redirect.redirectregex.permanent=true"
+      - "traefik.http.routers.heimdall-rtr.middlewares=chain-oauth@file,heimdall-redirect"
+      ## HTTP Services
+      - "traefik.http.routers.heimdall-rtr.service=heimdall-svc"
+      - "traefik.http.services.heimdall-svc.loadbalancer.server.port=80"
 
   overseerr:
     image: sctx/overseerr:latest
