@@ -7,6 +7,9 @@ Setup:
     1. `sudo setfacl -Rdm g:docker:rwx ~/htpc`
     1. `sudo chmod -R 775 ~/htpc`
 1. Make sure to have domain/DNS up to date, and API access to provider
+1. Update router settings:
+    1. Make machine static internal IP
+    1. Port forward 80, 443 (Traefik) and 32400 (Plex)
 1. `mv .env.template .env` and fill out variables
 1. If you have dynamic IP, setup cronjob to update your provider periodically:
     1. `0 3 * * * curl "http://dynamicdns.park-your-domain.com/update?host=<HOST>&domain=<DOMAIN>&password=<PASSWORD>" > <LOG_DIR>/dynamicdns.log 2>&1`
@@ -39,8 +42,8 @@ Setup:
     1. Tautulli with Plex
     1. Heimdall to access it all from one easy domain
 1. Install UFW:
-    1. Allow 80, 443 from anywhere
-    1. Allow 22, 32400 from 192.168.0.0/16 (for SSH and Plex)
+    1. Allow 80, 443, 32400 from anywhere
+    1. Allow 22 from 192.168.0.0/16
 1. Change DOCKER_OPTS to Respect IP Table Firewall
     1. `sudo vi /etc/default/docker`
     1. add `DOCKER_OPTS="--iptables=false"`
