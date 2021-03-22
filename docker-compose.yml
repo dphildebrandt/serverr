@@ -596,3 +596,33 @@ services:
       - DOCKER_HOST=$SOCKET_PROXY
     command: -s "0 0 3 * * *" --cleanup
 
+  speedtest:
+    container_name: speedtest
+    image: henrywhitaker3/speedtest-tracker
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    networks:
+      - t2_proxy
+    volumes:
+      - $DOCKER_DIR/speedtest:/config
+    environment:
+      TZ: $TZ
+      PGID: $PGID
+      PUID: $PUID
+      OOKLA_EULA_GDPR: "true"
+    logging:
+      driver: "json-file"
+      options:
+        max-file: "10"
+        max-size: "200k"
+    labels:
+      - "traefik.enable=true"
+      # HTTP Routers
+      - "traefik.http.routers.speedtest-rtr.entrypoints=https"
+      - "traefik.http.routers.speedtest-rtr.rule=Host(`speedtest.$DOMAIN_NAME`)"
+      # Middlewares
+      - "traefik.http.routers.speedtest-rtr.middlewares=chain-oauth@file"
+      # HTTP Services
+      - "traefik.http.routers.speedtest-rtr.service=speedtest-svc"
+      - "traefik.http.services.speedtest-svc.loadbalancer.server.port=80"
