@@ -420,7 +420,7 @@ services:
       - "traefik.http.services.sonarr-svc.loadbalancer.server.port=8989"
 
   lidarr:
-    image: linuxserver/lidarr:develop
+    image: linuxserver/lidarr:latest
     container_name: lidarr
     restart: unless-stopped
     networks:
