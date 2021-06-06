@@ -294,17 +294,16 @@ services:
 
   # INDEXERS
 
-  hydra:
-    image: linuxserver/nzbhydra2:latest
-    container_name: hydra
+  prowlarr:
+    image: linuxserver/prowlarr:develop
+    container_name: prowlarr
     restart: unless-stopped
     networks:
       - t2_proxy
     security_opt:
       - no-new-privileges:true
     volumes:
-      - $DOCKER_DIR/hydra2:/config
-      - $DOWNLOAD_DIR:/downloads
+      - $DOCKER_DIR/prowlarr:/config
     environment:
       PUID: $PUID
       PGID: $PGID
@@ -312,40 +311,13 @@ services:
     labels:
       - "traefik.enable=true"
       # HTTP Routers
-      - "traefik.http.routers.hydra-rtr.entrypoints=https"
-      - "traefik.http.routers.hydra-rtr.rule=Host(`hydra.$DOMAIN_NAME`)"
+      - "traefik.http.routers.prowlarr-rtr.entrypoints=https"
+      - "traefik.http.routers.prowlarr-rtr.rule=Host(`prowlarr.$DOMAIN_NAME`)"
       # Middlewares
-      - "traefik.http.routers.hydra-rtr.middlewares=chain-oauth@file"
+      - "traefik.http.routers.prowlarr-rtr.middlewares=chain-oauth@file"
       # HTTP Services
-      - "traefik.http.routers.hydra-rtr.service=hydra-svc"
-      - "traefik.http.services.hydra-svc.loadbalancer.server.port=5076"
-
-  jackett:
-    image: linuxserver/jackett:latest
-    container_name: jackett
-    restart: unless-stopped
-    networks:
-      - t2_proxy
-    security_opt:
-      - no-new-privileges:true
-    volumes:
-      - $DOCKER_DIR/jackett:/config
-      - $DOWNLOAD_DIR:/downloads
-      - "/etc/localtime:/etc/localtime:ro"
-    environment:
-      - PUID=$PUID
-      - PGID=$PGID
-      - TZ=$TZ
-    labels:
-      - "traefik.enable=true"
-      # HTTP Routers
-      - "traefik.http.routers.jackett-rtr.entrypoints=https"
-      - "traefik.http.routers.jackett-rtr.rule=Host(`jackett.$DOMAIN_NAME`)"
-      # Middlewares
-      - "traefik.http.routers.jackett-rtr.middlewares=chain-oauth@file"
-      # HTTP Services
-      - "traefik.http.routers.jackett-rtr.service=jackett-svc"
-      - "traefik.http.services.jackett-svc.loadbalancer.server.port=9117"
+      - "traefik.http.routers.prowlarr-rtr.service=prowlarr-svc"
+      - "traefik.http.services.prowlarr-svc.loadbalancer.server.port=9696"
 
   # PVRS
 
