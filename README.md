@@ -50,3 +50,9 @@ Setup:
 1. Install rclone and configure
     1. Copy down Cloud data
     1. Setup sync `0 3 * * * rclone sync <MEDIA_DIR>/music/ Dropbox:Music --log-level=NOTICE --log-file=<LOG_DIR>/rclone.log`
+1. Setup MariaDB and Guacamole
+    1. Copy initialization script `sudo docker run --rm guacamole/guacamole /opt/guacamole/bin/initdb.sh --mysql > mariadb/guac_initdb.sql`
+    1. Enter mariadb container, login as root, create the guac db, user/password, and set privileges
+    1. In mariadb container, run guac initialization script `cat /config/guac_initdb.sql | mysql -u <guac_user> -p <guac_db>;`
+    1. Login to guac as guacadmin, setup new admin, delete old admin. Configure connections.
+

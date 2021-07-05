@@ -23,6 +23,14 @@ secrets:
     file: $DOCKER_DIR/secrets/namecheap_api_key
   plex_claim:
     file: $DOCKER_DIR/secrets/plex_claim
+  mysql_root_password:
+    file: $DOCKER_DIR/secrets/mysql_root_password
+  guac_db_name:
+    file: $DOCKER_DIR/secrets/guac_db_name
+  guac_mysql_user:
+    file: $DOCKER_DIR/secrets/guac_mysql_user
+  guac_mysql_password:
+    file: $DOCKER_DIR/secrets/guac_mysql_password
 
   # This one loads the secret into the config, so you need the follow:
   # provider.google.client-id=
@@ -598,3 +606,63 @@ services:
       # HTTP Services
       - "traefik.http.routers.speedtest-rtr.service=speedtest-svc"
       - "traefik.http.services.speedtest-svc.loadbalancer.server.port=80"
+
+  mariadb:
+    container_name: mariadb
+    image: linuxserver/mariadb:latest
+    restart: unless-stopped
+    networks:
+      - t2_proxy
+    security_opt:
+      - no-new-privileges:true
+    volumes:
+      - $DOCKER_DIR/mariadb:/config
+    ports:
+      - "$MARIADB_PORT:3306"
+    secrets:
+      - mysql_root_password
+    environment:
+      TZ: $TZ
+      PUID: $PUID
+      PGID: $PGID
+      FILE__MYSQL_ROOT_PASSWORD: /run/secrets/mysql_root_password
+
+  guacd:
+    container_name: guacd
+    image: guacamole/guacd:latest
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    networks:
+      - t2_proxy
+
+  guacamole:
+    image: guacamole/guacamole:latest
+    container_name: guacamole
+    restart: unless-stopped
+    networks:
+      - t2_proxy
+    security_opt:
+      - no-new-privileges:true
+    secrets:
+      - guac_mysql_user
+      - guac_mysql_password
+      - guac_db_name
+    environment:
+      GUACD_HOSTNAME: guacd
+      MYSQL_HOSTNAME: $MARIADB_HOST
+      MYSQL_PORT: $MARIADB_PORT
+      MYSQL_DATABASE_FILE: /run/secrets/guac_db_name
+      MYSQL_USER_FILE: /run/secrets/guac_mysql_user
+      MYSQL_PASSWORD_FILE: /run/secrets/guac_mysql_password
+    labels:
+      - "traefik.enable=true"
+      # HTTP Routers
+      - "traefik.http.routers.guacamole-rtr.entrypoints=https"
+      - "traefik.http.routers.guacamole-rtr.rule=Host(`guac.$DOMAIN_NAME`)"
+      # Middlewares
+      - "traefik.http.routers.guacamole-rtr.middlewares=chain-oauth@file,add-guacamole"
+      - "traefik.http.middlewares.add-guacamole.addPrefix.prefix=/guacamole"
+      # HTTP Services
+      - "traefik.http.routers.guacamole-rtr.service=guacamole-svc"
+      - "traefik.http.services.guacamole-svc.loadbalancer.server.port=8080"
