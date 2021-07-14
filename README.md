@@ -1,5 +1,5 @@
 # serverr
-Docker media server stack with Docker Compose, Traefik 2, Google OAuth2, and LetsEncrypt
+Docker, *arr-based, media server stack with Traefik 2, Google OAuth2, and LetsEncrypt
 
 Heavily based on [htpcBeginner/docker-traefik](https://github.com/htpcBeginner/docker-traefik)
 
