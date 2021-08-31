@@ -32,11 +32,13 @@ Setup Tips:
 1. Configure various containers via their subdomain.domain.com addresses, things to note:
     1. Sabnzbd 
         1. Have to access Sabnzbd via IP:Port/sabnzbd before whitelisting the subdomain in config
-    3. Setup MariaDB and Guacamole
+    1. MariaDB and Guacamole
         1. Copy initialization script `sudo docker run --rm guacamole/guacamole /opt/guacamole/bin/initdb.sh --mysql > mariadb/guac_initdb.sql`
         1. Enter mariadb container, login as root, create the guac db, user/password, and set privileges
         1. In mariadb container, run guac initialization script `cat /config/guac_initdb.sql | mysql -u <guac_user> -p <guac_db>;`
         1. Login to guac as guacadmin, setup new admin, delete old admin. Configure connections.
+    1. Tauttulli
+        1. If using the official remote app, disable oauth, register device token, update .env, re-enable oauth.
 1. Install UFW:
     1. Allow 80, 443, 32400 from anywhere
     1. Allow 22 from 192.168.0.0/16
