@@ -14,7 +14,6 @@ http:
         accessControlMaxAge: 100
         hostsProxyHeaders:
           - "X-Forwarded-Host"
-        sslRedirect: true
         stsSeconds: 63072000
         stsIncludeSubdomains: true
         stsPreload: true
@@ -22,7 +21,7 @@ http:
         contentTypeNosniff: true
         browserXssFilter: true
         referrerPolicy: "same-origin"
-        featurePolicy: "camera 'none'; geolocation 'none'; microphone 'none'; payment 'none'; usb 'none';"
+        permissionsPolicy: "camera=(), microphone=(), geolocation=(), payment=(), usb=(), vr=()"
         customResponseHeaders:
           X-Robots-Tag: "none,noarchive,nosnippet,notranslate,noimageindex,"
           server: ""
@@ -34,3 +33,8 @@ http:
         authResponseHeaders:
           - "Remote-User"
           - "Remote-Groups"
+
+    middlewares-https-redirectscheme:
+      redirectScheme:
+        scheme: https
+        permanent: true

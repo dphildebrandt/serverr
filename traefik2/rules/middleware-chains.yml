@@ -5,10 +5,12 @@ http:
         middlewares:
           - middlewares-rate-limit
           - middlewares-secure-headers
-
+          - middlewares-https-redirectscheme
+    
     chain-oauth:
       chain:
         middlewares:
           - middlewares-rate-limit
           - middlewares-secure-headers
           - middlewares-oauth
+          - middlewares-https-redirectscheme
