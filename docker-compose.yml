@@ -536,6 +536,32 @@ services:
       - "traefik.http.routers.tautulli-rtr-bypass.service=tautulli-svc"
       - "traefik.http.services.tautulli-svc.loadbalancer.server.port=8181"
 
+  mealie:
+    container_name: mealie
+    image: hkotel/mealie:latest
+    restart: unless-stopped
+    networks:
+      - t2_proxy
+    security_opt:
+      - no-new-privileges:true
+    volumes:
+      - $DOCKER_DIR/mealie:/app/data
+    environment:
+      PUID: $PUID
+      PGID: $PGID
+      TZ: $TZ
+      RECIPE_PUBLIC: "false"
+    labels:
+      - "traefik.enable=true"
+      # HTTP Routers
+      - "traefik.http.routers.mealie-rtr.entrypoints=https"
+      - "traefik.http.routers.mealie-rtr.rule=Host(`recipes.$DOMAIN_NAME`)"
+      # Middlewares
+      - "traefik.http.routers.mealie-rtr.middlewares=chain-no-auth@file"
+      # HTTP Serices
+      - "traefik.http.routers.mealie-rtr.service=mealie-svc"
+      - "traefik.http.services.mealie-svc.loadbalancer.server.port=80"
+
   # UTILITY
 
   portainer:
