@@ -31,6 +31,8 @@ secrets:
     file: $DOCKER_DIR/secrets/guac_mysql_user
   guac_mysql_password:
     file: $DOCKER_DIR/secrets/guac_mysql_password
+  plex_token:
+    file: $DOCKER_DIR/secrets/plex_token
 
   # This one loads the secret into the config, so you need the follow:
   # provider.google.client-id=
@@ -484,16 +486,18 @@ services:
       PLEX_UID: $PUID
       PLEX_GID: $PGID
 
-  plex-auto-languages:
+  pal:
     image: remirigal/plex-auto-languages:latest
-    container_name: pal
+    container_name: plex-auto-languages
     restart: unless-stopped
     security_opt:
       - no-new-privileges:true
+    secrets:
+      - plex_token
     environment:
       TZ: $TZ
       PLEX_URL: http://192.168.1.29:32400
-      PLEX_TOKEN: $PLEX_TOKEN
+      PLEX_TOKEN_FILE: /run/secrets/plex_token
 
   tautulli:
     image: linuxserver/tautulli:latest
