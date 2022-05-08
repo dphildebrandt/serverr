@@ -546,7 +546,9 @@ services:
       PUID: $PUID
       PGID: $PGID
       TZ: $TZ
-      RECIPE_PUBLIC: "false"
+      RECIPE_PUBLIC: "true"
+      RECIPE_SHOW_NUTRITION: "false"
+      RECIPE_DISABLE_COMMENTS: "true"
     labels:
       - "traefik.enable=true"
       # HTTP Routers
