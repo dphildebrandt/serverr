@@ -77,6 +77,8 @@ services:
       - --certificatesResolvers.dns-namecheap.acme.email=$MY_EMAIL
       - --certificatesResolvers.dns-namecheap.acme.storage=/acme.json
       - --certificatesResolvers.dns-namecheap.acme.dnsChallenge.provider=namecheap
+      - --certificatesResolvers.dns-namecheap.acme.dnsChallenge.resolvers=1.1.1.1:53,1.0.0.1:53
+      - --certificatesResolvers.dns-namecheap.acme.dnsChallenge.delayBeforeCheck=90
     networks:
       - t2_proxy
       - socket_proxy
@@ -112,6 +114,8 @@ services:
       - "traefik.http.routers.traefik-rtr.entrypoints=https"
       - "traefik.http.routers.traefik-rtr.rule=Host(`traefik.$DOMAIN_NAME`)"
       # - "traefik.http.routers.traefik-rtr.tls.certresolver=dns-namecheap"  # uncomment for first run of traefik, commented to force the use of wildcard certs
+      - "traefik.http.routers.traefik-rtr.tls.domains[0].main=$DOMAIN_NAME"
+      - "traefik.http.routers.traefik-rtr.tls.domains[0].sans=*.$DOMAIN_NAME"
       # Services - API
       - "traefik.http.routers.traefik-rtr.service=api@internal"
       # Middlewares

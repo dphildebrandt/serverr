@@ -8,7 +8,7 @@ Setup Tips:
     1. Set privileges on folder and sub-folders:
         1. `sudo setfacl -Rdm g:docker:rwx ~/serverr`
         1. `sudo chmod -R 775 ~/serverr`
-1. Make sure to have domain/DNS up to date, and API access to provider
+1. Make sure to have domain/DNS up to date, and API access to provider (whitelist your IP if needed)
 1. Update router settings:
     1. Make machine static internal IP
     1. Port forward 80, 443 (Traefik) and 32400 (Plex)
