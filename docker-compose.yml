@@ -42,14 +42,26 @@ secrets:
   traefik-forward-auth:
     file: $DOCKER_DIR/secrets/traefik-forward-auth
 
+x-environment: &default-tz-puid-pgid
+  TZ: $TZ
+  PUID: $PUID
+  PGID: $PGID
+
+x-networks: &network-sec
+  networks:
+    - t2_proxy
+  security_opt:
+    - no-new-privileges:true
+  restart: unless-stopped
+
 services:
 
   # FRONTENDS
 
   traefik:
+    <<: *network-sec
     container_name: traefik
     image: traefik:latest
-    restart: unless-stopped
     command:
       - --global.checkNewVersion=true
       - --global.sendAnonymousUsage=false
@@ -82,8 +94,6 @@ services:
     networks:
       - t2_proxy
       - socket_proxy
-    security_opt:
-      - no-new-privileges:true
     ports:
       - target: 80
         published: 80
@@ -162,13 +172,9 @@ services:
       - VOLUMES=1  # Portainer
 
   oauth:
+    <<: *network-sec
     container_name: oauth
     image: thomseddon/traefik-forward-auth:latest
-    restart: unless-stopped
-    networks:
-      - t2_proxy
-    security_opt:
-      - no-new-privileges:true
     environment:
       - CONFIG=/config
       - COOKIE_DOMAIN=$DOMAIN_NAME
@@ -195,19 +201,13 @@ services:
       - "traefik.http.routers.oauth-rtr.middlewares=chain-oauth@file"
  
   heimdall:
+    <<: *network-sec
     container_name: heimdall
     image: linuxserver/heimdall:latest
-    restart: unless-stopped
-    networks:
-      - t2_proxy
-    security_opt:
-      - no-new-privileges:true
     volumes:
       - $DOCKER_DIR/heimdall:/config
     environment:
-      PUID: $PUID
-      PGID: $PGID
-      TZ: $TZ
+      <<: *default-tz-puid-pgid
     labels:
       - "traefik.enable=true"
       ## HTTP Routers
@@ -223,19 +223,13 @@ services:
       - "traefik.http.services.heimdall-svc.loadbalancer.server.port=80"
 
   overseerr:
+    <<: *network-sec
     image: sctx/overseerr:latest
     container_name: overseerr
-    restart: unless-stopped
-    networks:
-      - t2_proxy
-    security_opt:
-      - no-new-privileges:true
     volumes:
       - $DOCKER_DIR/overseerr:/app/config
     environment:
-      PUID: $PUID
-      PGID: $PGID
-      TZ: $TZ
+      <<: *default-tz-puid-pgid
     labels:
       - "traefik.enable=true"
       # HTTP Routers
@@ -253,20 +247,14 @@ services:
   # DOWNLOADERS
 
   sabnzbd:
+    <<: *network-sec
     image: linuxserver/sabnzbd:latest
     container_name: sabnzbd
-    restart: unless-stopped
-    networks:
-      - t2_proxy
-    security_opt:
-      - no-new-privileges:true
     volumes:
       - $DOCKER_DIR/sabnzbd:/config
       - $DOWNLOAD_DIR:/downloads
     environment:
-      PUID: $PUID
-      PGID: $PGID
-      TZ: $TZ
+      <<: *default-tz-puid-pgid
       UMASK_SET: 002
     labels:
       - "traefik.enable=true"
@@ -280,21 +268,15 @@ services:
       - "traefik.http.services.sabnzbd-svc.loadbalancer.server.port=8080"
 
   deluge:
+    <<: *network-sec
     image: linuxserver/deluge:latest
     container_name: deluge
-    networks:
-      - t2_proxy
-    security_opt:
-      - no-new-privileges:true
     environment:
-      - PUID=$PUID
-      - PGID=$PGID
-      - TZ=$TZ
-      - UMASK_SET=022
+      <<: *default-tz-puid-pgid
+      UMASK_SET: 022
     volumes:
       - $DOCKER_DIR/deluge:/config
       - $DOWNLOAD_DIR:/downloads
-    restart: unless-stopped
     labels:
       - "traefik.enable=true"
       # HTTP Routers
@@ -309,19 +291,13 @@ services:
   # INDEXERS
 
   prowlarr:
+    <<: *network-sec
     image: linuxserver/prowlarr:develop
     container_name: prowlarr
-    restart: unless-stopped
-    networks:
-      - t2_proxy
-    security_opt:
-      - no-new-privileges:true
     volumes:
       - $DOCKER_DIR/prowlarr:/config
     environment:
-      PUID: $PUID
-      PGID: $PGID
-      TZ: $TZ
+      <<: *default-tz-puid-pgid
     labels:
       - "traefik.enable=true"
       # HTTP Routers
@@ -336,22 +312,16 @@ services:
   # PVRS
 
   radarr:
+    <<: *network-sec
     image: linuxserver/radarr:latest
     container_name: radarr
-    restart: unless-stopped
-    networks:
-      - t2_proxy
-    security_opt:
-      - no-new-privileges:true
     volumes:
       - $DOCKER_DIR/radarr:/config
       - $DOWNLOAD_DIR:/downloads
       - $MEDIA_DIR/movies:/movies
       - "/etc/localtime:/etc/localtime:ro"
     environment:
-      - PUID=$PUID
-      - PGID=$PGID
-      - TZ=$TZ
+      <<: *default-tz-puid-pgid
     labels:
       - "traefik.enable=true"
       # HTTP Routers Auth Bypass
@@ -371,22 +341,16 @@ services:
       - "traefik.http.services.radarr-svc.loadbalancer.server.port=7878"
 
   sonarr:
+    <<: *network-sec
     image: linuxserver/sonarr:latest
     container_name: sonarr
-    restart: unless-stopped
-    networks:
-      - t2_proxy
-    security_opt:
-      - no-new-privileges:true
     volumes:
       - $DOCKER_DIR/sonarr:/config
       - $DOWNLOAD_DIR:/downloads
       - $MEDIA_DIR/tv:/tv
       - "/etc/localtime:/etc/localtime:ro"
     environment:
-      - PUID=$PUID
-      - PGID=$PGID
-      - TZ=$TZ
+      <<: *default-tz-puid-pgid
     labels:
       - "traefik.enable=true"
       # HTTP Routers Auth Bypass
@@ -406,22 +370,16 @@ services:
       - "traefik.http.services.sonarr-svc.loadbalancer.server.port=8989"
 
   lidarr:
+    <<: *network-sec
     image: linuxserver/lidarr:latest
     container_name: lidarr
-    restart: unless-stopped
-    networks:
-      - t2_proxy
-    security_opt:
-      - no-new-privileges:true
     volumes:
       - $DOCKER_DIR/lidarr:/config
       - $DOWNLOAD_DIR:/downloads
       - $MEDIA_DIR/music:/music
       - "/etc/localtime:/etc/localtime:ro"
     environment:
-      PUID: $PUID
-      PGID: $PGID
-      TZ: $TZ
+      <<: *default-tz-puid-pgid
     labels:
       - "traefik.enable=true"
       ## HTTP Routers Auth Bypass
@@ -441,21 +399,15 @@ services:
       - "traefik.http.services.lidarr-svc.loadbalancer.server.port=8686"
 
   bazarr:
+    <<: *network-sec
     image: linuxserver/bazarr:latest
     container_name: bazarr
-    restart: unless-stopped
-    networks:
-      - t2_proxy
-    security_opt:
-      - no-new-privileges:true
     volumes:
       - $DOCKER_DIR/bazarr:/config
       - $MEDIA_DIR/tv:/tv
       - $MEDIA_DIR/movies:/movies
     environment:
-      PUID: $PUID
-      PGID: $PGID
-      TZ: $TZ
+      <<: *default-tz-puid-pgid
     labels:
       - "traefik.enable=true"
       # HTTP Routers
@@ -491,33 +443,25 @@ services:
       PLEX_GID: $PGID
 
   pal:
+    <<: *network-sec
     image: remirigal/plex-auto-languages:latest
     container_name: plex-auto-languages
-    restart: unless-stopped
-    security_opt:
-      - no-new-privileges:true
     secrets:
       - plex_token
     environment:
-      TZ: $TZ
+      <<: *default-tz-puid-pgid
       PLEX_URL: http://192.168.1.29:32400
       PLEX_TOKEN_FILE: /run/secrets/plex_token
 
   tautulli:
+    <<: *network-sec
     image: linuxserver/tautulli:latest
     container_name: tautulli
-    restart: unless-stopped
-    networks:
-      - t2_proxy
-    security_opt:
-      - no-new-privileges:true
     volumes:
       - $DOCKER_DIR/tautulli/config:/config
       - $DOCKER_DIR/plexms/Library/Application Support/Plex Media Server/Logs:/logs:ro  # For tautulli Plex log viewer
     environment:
-      PUID: $PUID
-      PGID: $PGID
-      TZ: $TZ
+      <<: *default-tz-puid-pgid
     labels:
       - "traefik.enable=true"
       # HTTP Routers Auth Bypass
@@ -537,19 +481,13 @@ services:
       - "traefik.http.services.tautulli-svc.loadbalancer.server.port=8181"
 
   mealie:
+    <<: *network-sec
     container_name: mealie
     image: hkotel/mealie:latest
-    restart: unless-stopped
-    networks:
-      - t2_proxy
-    security_opt:
-      - no-new-privileges:true
     volumes:
       - $DOCKER_DIR/mealie:/app/data
     environment:
-      PUID: $PUID
-      PGID: $PGID
-      TZ: $TZ
+      <<: *default-tz-puid-pgid
       RECIPE_PUBLIC: "true"
       RECIPE_SHOW_NUTRITION: "false"
       RECIPE_DISABLE_COMMENTS: "true"
@@ -567,19 +505,17 @@ services:
   # UTILITY
 
   portainer:
+    <<: *network-sec
     image: portainer/portainer-ce:latest
     container_name: portainer
-    restart: unless-stopped
     command: -H $SOCKET_PROXY
     networks:
       - t2_proxy
       - socket_proxy
-    security_opt:
-      - no-new-privileges:true
     volumes:
       - $DOCKER_DIR/portainer/data:/data
     environment:
-      - TZ=$TZ
+      <<: *default-tz-puid-pgid
     labels:
       - "traefik.enable=true"
       # HTTP Routers
@@ -592,15 +528,13 @@ services:
       - "traefik.http.services.portainer-svc.loadbalancer.server.port=9000"
 
   glances:
+    <<: *network-sec
     image: nicolargo/glances:latest
     container_name: glances
-    restart: unless-stopped
     privileged: true
     networks:
       - t2_proxy
       - socket_proxy
-    security_opt:
-      - no-new-privileges:true
     pid: host
     environment:
       GLANCES_OPT: "-w --fs-free-space"
@@ -619,30 +553,24 @@ services:
       - "traefik.http.services.glances-svc.loadbalancer.server.port=61208"
 
   watchtower:
+    <<: *network-sec
     container_name: watchtower
-    restart: unless-stopped
     image: containrrr/watchtower:latest
     networks:
       - socket_proxy
     environment:
-      - TZ=$TZ
-      - DOCKER_HOST=$SOCKET_PROXY
+      <<: *default-tz-puid-pgid
+      DOCKER_HOST: $SOCKET_PROXY
     command: -s "0 0 2 * * *" --cleanup
 
   speedtest:
+    <<: *network-sec
     container_name: speedtest
     image: henrywhitaker3/speedtest-tracker
-    restart: unless-stopped
-    security_opt:
-      - no-new-privileges:true
-    networks:
-      - t2_proxy
     volumes:
       - $DOCKER_DIR/speedtest:/config
     environment:
-      TZ: $TZ
-      PGID: $PGID
-      PUID: $PUID
+      <<: *default-tz-puid-pgid
       OOKLA_EULA_GDPR: "true"
     logging:
       driver: "json-file"
@@ -661,13 +589,9 @@ services:
       - "traefik.http.services.speedtest-svc.loadbalancer.server.port=80"
 
   mariadb:
+    <<: *network-sec
     container_name: mariadb
     image: linuxserver/mariadb:latest
-    restart: unless-stopped
-    networks:
-      - t2_proxy
-    security_opt:
-      - no-new-privileges:true
     volumes:
       - $DOCKER_DIR/mariadb:/config
     ports:
@@ -675,28 +599,18 @@ services:
     secrets:
       - mysql_root_password
     environment:
-      TZ: $TZ
-      PUID: $PUID
-      PGID: $PGID
+      <<: *default-tz-puid-pgid
       FILE__MYSQL_ROOT_PASSWORD: /run/secrets/mysql_root_password
 
   guacd:
+    <<: *network-sec
     container_name: guacd
     image: guacamole/guacd:latest
-    restart: unless-stopped
-    security_opt:
-      - no-new-privileges:true
-    networks:
-      - t2_proxy
 
   guacamole:
+    <<: *network-sec
     image: guacamole/guacamole:latest
     container_name: guacamole
-    restart: unless-stopped
-    networks:
-      - t2_proxy
-    security_opt:
-      - no-new-privileges:true
     secrets:
       - guac_mysql_user
       - guac_mysql_password
