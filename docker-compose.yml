@@ -199,28 +199,37 @@ services:
       - "traefik.http.services.oauth-svc.loadbalancer.server.port=4181"
       # Middlewares
       - "traefik.http.routers.oauth-rtr.middlewares=chain-oauth@file"
- 
-  heimdall:
+
+  dashy:
     <<: *network-sec
-    container_name: heimdall
-    image: linuxserver/heimdall:latest
+    container_name: dashy
+    image: lissy93/dashy:latest
     volumes:
-      - $DOCKER_DIR/heimdall:/config
+      - $DOCKER_DIR/dashy/conf.yml:/app/public/conf.yml
+      - $DOCKER_DIR/dashy/item-icons:/app/public/item-icons
     environment:
-      <<: *default-tz-puid-pgid
+      - NODE_ENV=production
+      - UID=$PUID
+      - GID=$PGID
+    healthcheck:
+      test: ['CMD', 'node', '/app/services/healthcheck']
+      interval: 1m30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
     labels:
       - "traefik.enable=true"
       ## HTTP Routers
-      - "traefik.http.routers.heimdall-rtr.entrypoints=https"
-      - "traefik.http.routers.heimdall-rtr.rule=Host(`$DOMAIN_NAME`) || Host(`www.$DOMAIN_NAME`)"
+      - "traefik.http.routers.dashy-rtr.entrypoints=https"
+      - "traefik.http.routers.dashy-rtr.rule=Host(`$DOMAIN_NAME`) || Host(`www.$DOMAIN_NAME`)"
       ## Middlewares
-      - "traefik.http.middlewares.heimdall-redirect.redirectregex.regex=^https?://$DOMAIN_NAME(/.*)?$$"
-      - "traefik.http.middlewares.heimdall-redirect.redirectregex.replacement=https://www.$DOMAIN_NAME$${1}"
-      - "traefik.http.middlewares.heimdall-redirect.redirectregex.permanent=true"
-      - "traefik.http.routers.heimdall-rtr.middlewares=chain-oauth@file,heimdall-redirect"
+      - "traefik.http.middlewares.dashy-redirect.redirectregex.regex=^https?://$DOMAIN_NAME(/.*)?$$"
+      - "traefik.http.middlewares.dashy-redirect.redirectregex.replacement=https://www.$DOMAIN_NAME$${1}"
+      - "traefik.http.middlewares.dashy-redirect.redirectregex.permanent=true"
+      - "traefik.http.routers.dashy-rtr.middlewares=chain-oauth@file,dashy-redirect"
       ## HTTP Services
-      - "traefik.http.routers.heimdall-rtr.service=heimdall-svc"
-      - "traefik.http.services.heimdall-svc.loadbalancer.server.port=80"
+      - "traefik.http.routers.dashy-rtr.service=dashy-svc"
+      - "traefik.http.services.dashy-svc.loadbalancer.server.port=80"
 
   overseerr:
     <<: *network-sec
