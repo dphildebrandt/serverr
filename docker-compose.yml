@@ -511,6 +511,26 @@ services:
       - "traefik.http.routers.mealie-rtr.service=mealie-svc"
       - "traefik.http.services.mealie-svc.loadbalancer.server.port=80"
 
+  metube:
+    <<: *network-sec
+    container_name: metube
+    image: alexta69/metube:latest
+    volumes:
+      - $MEDIA_DIR/youtube:/downloads
+    environment:
+      UID: $PUID
+      GID: $PGID
+    labels:
+      - "traefik.enable=true"
+      # HTTP Routers
+      - "traefik.http.routers.metube-rtr.entrypoints=https"
+      - "traefik.http.routers.metube-rtr.rule=Host(`metube.$DOMAIN_NAME`)"
+      # Middlewares
+      - "traefik.http.routers.metube-rtr.middlewares=chain-oauth@file"
+      # HTTP Serices
+      - "traefik.http.routers.metube-rtr.service=metube-svc"
+      - "traefik.http.services.metube-svc.loadbalancer.server.port=8081"
+
   # UTILITY
 
   portainer:
