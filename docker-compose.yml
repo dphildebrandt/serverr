@@ -18,21 +18,21 @@ networks:
 
 secrets:
   namecheap_api_user:
-    file: $DOCKER_DIR/secrets/namecheap_api_user
+    file: $DOCKER_DATA_DIR/secrets/namecheap_api_user
   namecheap_api_key:
-    file: $DOCKER_DIR/secrets/namecheap_api_key
+    file: $DOCKER_DATA_DIR/secrets/namecheap_api_key
   plex_claim:
-    file: $DOCKER_DIR/secrets/plex_claim
+    file: $DOCKER_DATA_DIR/secrets/plex_claim
   mysql_root_password:
-    file: $DOCKER_DIR/secrets/mysql_root_password
+    file: $DOCKER_DATA_DIR/secrets/mysql_root_password
   guac_db_name:
-    file: $DOCKER_DIR/secrets/guac_db_name
+    file: $DOCKER_DATA_DIR/secrets/guac_db_name
   guac_mysql_user:
-    file: $DOCKER_DIR/secrets/guac_mysql_user
+    file: $DOCKER_DATA_DIR/secrets/guac_mysql_user
   guac_mysql_password:
-    file: $DOCKER_DIR/secrets/guac_mysql_password
+    file: $DOCKER_DATA_DIR/secrets/guac_mysql_password
   plex_token:
-    file: $DOCKER_DIR/secrets/plex_token
+    file: $DOCKER_DATA_DIR/secrets/plex_token
 
   # This one loads the secret into the config, so you need the follow:
   # provider.google.client-id=
@@ -40,7 +40,7 @@ secrets:
   # secret=
   # whitelist=
   traefik-forward-auth:
-    file: $DOCKER_DIR/secrets/traefik-forward-auth
+    file: $DOCKER_DATA_DIR/secrets/traefik-forward-auth
 
 x-environment: &default-tz-puid-pgid
   TZ: $TZ
@@ -104,9 +104,9 @@ services:
         protocol: tcp
         mode: host
     volumes:
-      - $DOCKER_DIR/traefik2/rules:/rules
-      - $DOCKER_DIR/traefik2/acme/acme.json:/acme.json
-      - $DOCKER_DIR/traefik2/traefik.log:/traefik.log
+      - $DOCKER_DATA_DIR/traefik2/rules:/rules
+      - $DOCKER_DATA_DIR/traefik2/acme/acme.json:/acme.json
+      - $DOCKER_DATA_DIR/traefik2/traefik.log:/traefik.log
     secrets:
       - namecheap_api_user
       - namecheap_api_key
@@ -205,8 +205,8 @@ services:
     container_name: dashy
     image: lissy93/dashy:latest
     volumes:
-      - $DOCKER_DIR/dashy/conf.yml:/app/public/conf.yml
-      - $DOCKER_DIR/dashy/item-icons:/app/public/item-icons
+      - $DOCKER_DATA_DIR/dashy/conf.yml:/app/public/conf.yml
+      - $DOCKER_DATA_DIR/dashy/item-icons:/app/public/item-icons
     environment:
       - NODE_ENV=production
       - UID=$PUID
@@ -236,7 +236,7 @@ services:
     image: sctx/overseerr:latest
     container_name: overseerr
     volumes:
-      - $DOCKER_DIR/overseerr:/app/config
+      - $DOCKER_DATA_DIR/overseerr:/app/config
     environment:
       <<: *default-tz-puid-pgid
     labels:
@@ -260,7 +260,7 @@ services:
     image: linuxserver/sabnzbd:latest
     container_name: sabnzbd
     volumes:
-      - $DOCKER_DIR/sabnzbd:/config
+      - $DOCKER_DATA_DIR/sabnzbd:/config
       - $DOWNLOAD_DIR:/downloads
     environment:
       <<: *default-tz-puid-pgid
@@ -284,7 +284,7 @@ services:
       <<: *default-tz-puid-pgid
       UMASK_SET: 022
     volumes:
-      - $DOCKER_DIR/deluge:/config
+      - $DOCKER_DATA_DIR/deluge:/config
       - $DOWNLOAD_DIR:/downloads
     labels:
       - "traefik.enable=true"
@@ -304,7 +304,7 @@ services:
     image: linuxserver/prowlarr:develop
     container_name: prowlarr
     volumes:
-      - $DOCKER_DIR/prowlarr:/config
+      - $DOCKER_DATA_DIR/prowlarr:/config
     environment:
       <<: *default-tz-puid-pgid
     labels:
@@ -325,7 +325,7 @@ services:
     image: linuxserver/radarr:latest
     container_name: radarr
     volumes:
-      - $DOCKER_DIR/radarr:/config
+      - $DOCKER_DATA_DIR/radarr:/config
       - $DOWNLOAD_DIR:/downloads
       - $MEDIA_DIR/movies:/movies
       - "/etc/localtime:/etc/localtime:ro"
@@ -354,7 +354,7 @@ services:
     image: linuxserver/sonarr:latest
     container_name: sonarr
     volumes:
-      - $DOCKER_DIR/sonarr:/config
+      - $DOCKER_DATA_DIR/sonarr:/config
       - $DOWNLOAD_DIR:/downloads
       - $MEDIA_DIR/tv:/tv
       - "/etc/localtime:/etc/localtime:ro"
@@ -383,7 +383,7 @@ services:
     image: linuxserver/lidarr:latest
     container_name: lidarr
     volumes:
-      - $DOCKER_DIR/lidarr:/config
+      - $DOCKER_DATA_DIR/lidarr:/config
       - $DOWNLOAD_DIR:/downloads
       - $MEDIA_DIR/music:/music
       - "/etc/localtime:/etc/localtime:ro"
@@ -412,7 +412,7 @@ services:
     image: linuxserver/bazarr:latest
     container_name: bazarr
     volumes:
-      - $DOCKER_DIR/bazarr:/config
+      - $DOCKER_DATA_DIR/bazarr:/config
       - $MEDIA_DIR/tv:/tv
       - $MEDIA_DIR/movies:/movies
     environment:
@@ -438,7 +438,7 @@ services:
     security_opt:
       - no-new-privileges:true
     volumes:
-      - $DOCKER_DIR/plexms:/config
+      - $DOCKER_DATA_DIR/plexms:/config
       - /dev/shm:/transcode  # offload transcoding to RAM
       - $MEDIA_DIR:/media
     devices:
@@ -467,8 +467,8 @@ services:
     image: linuxserver/tautulli:latest
     container_name: tautulli
     volumes:
-      - $DOCKER_DIR/tautulli/config:/config
-      - $DOCKER_DIR/plexms/Library/Application Support/Plex Media Server/Logs:/logs:ro  # For tautulli Plex log viewer
+      - $DOCKER_DATA_DIR/tautulli/config:/config
+      - $DOCKER_DATA_DIR/plexms/Library/Application Support/Plex Media Server/Logs:/logs:ro  # For tautulli Plex log viewer
     environment:
       <<: *default-tz-puid-pgid
     labels:
@@ -494,7 +494,7 @@ services:
     container_name: mealie
     image: hkotel/mealie:latest
     volumes:
-      - $DOCKER_DIR/mealie:/app/data
+      - $DOCKER_DATA_DIR/mealie:/app/data
     environment:
       <<: *default-tz-puid-pgid
       RECIPE_PUBLIC: "true"
@@ -542,7 +542,7 @@ services:
       - t2_proxy
       - socket_proxy
     volumes:
-      - $DOCKER_DIR/portainer/data:/data
+      - $DOCKER_DATA_DIR/portainer/data:/data
     environment:
       <<: *default-tz-puid-pgid
     labels:
@@ -626,7 +626,7 @@ services:
     container_name: speedtest
     image: henrywhitaker3/speedtest-tracker
     volumes:
-      - $DOCKER_DIR/speedtest:/config
+      - $DOCKER_DATA_DIR/speedtest:/config
     environment:
       <<: *default-tz-puid-pgid
       OOKLA_EULA_GDPR: "true"
@@ -651,7 +651,7 @@ services:
     container_name: mariadb
     image: linuxserver/mariadb:latest
     volumes:
-      - $DOCKER_DIR/mariadb:/config
+      - $DOCKER_DATA_DIR/mariadb:/config
     ports:
       - "$MARIADB_PORT:3306"
     secrets:

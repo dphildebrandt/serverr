@@ -2,9 +2,11 @@
 */
 !.gitignore
 !docker-compose.yml
-!traefik2
-traefik2/*
-!traefik2/rules
-!traefik2/rules/*
+!app_data
+app_data/*
+!app_data/traefik2
+app_data/traefik2/*
+!app_data/traefik2/rules
+!app_data/traefik2/rules/*
 !README.md
 !.env.template
