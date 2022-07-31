@@ -25,10 +25,6 @@ secrets:
     file: $DOCKER_DATA_DIR/secrets/plex_claim
   mysql_root_password:
     file: $DOCKER_DATA_DIR/secrets/mysql_root_password
-  guac_db_name:
-    file: $DOCKER_DATA_DIR/secrets/guac_db_name
-  guac_mysql_user:
-    file: $DOCKER_DATA_DIR/secrets/guac_mysql_user
   guac_mysql_password:
     file: $DOCKER_DATA_DIR/secrets/guac_mysql_password
   plex_token:
@@ -653,7 +649,7 @@ services:
     volumes:
       - $DOCKER_DATA_DIR/mariadb:/config
     ports:
-      - "$MARIADB_PORT:3306"
+      - 3306:3306
     secrets:
       - mysql_root_password
     environment:
@@ -670,15 +666,13 @@ services:
     image: guacamole/guacamole:latest
     container_name: guacamole
     secrets:
-      - guac_mysql_user
       - guac_mysql_password
-      - guac_db_name
     environment:
       GUACD_HOSTNAME: guacd
-      MYSQL_HOSTNAME: $MARIADB_HOST
-      MYSQL_PORT: $MARIADB_PORT
-      MYSQL_DATABASE_FILE: /run/secrets/guac_db_name
-      MYSQL_USER_FILE: /run/secrets/guac_mysql_user
+      MYSQL_HOSTNAME: mariadb
+      MYSQL_PORT: 3306
+      MYSQL_DATABASE: guacamole
+      MYSQL_USER: guacdb_user
       MYSQL_PASSWORD_FILE: /run/secrets/guac_mysql_password
     labels:
       - "traefik.enable=true"
