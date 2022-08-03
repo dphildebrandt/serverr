@@ -100,9 +100,9 @@ services:
         protocol: tcp
         mode: host
     volumes:
-      - $DOCKER_DATA_DIR/traefik2/rules:/rules
-      - $DOCKER_DATA_DIR/traefik2/acme/acme.json:/acme.json
-      - $DOCKER_DATA_DIR/traefik2/traefik.log:/traefik.log
+      - $DOCKER_DATA_DIR/traefik/rules:/rules
+      - $DOCKER_DATA_DIR/traefik/acme/acme.json:/acme.json
+      - $DOCKER_DATA_DIR/traefik/traefik.log:/traefik.log
     secrets:
       - namecheap_api_user
       - namecheap_api_key
@@ -126,6 +126,8 @@ services:
       - "traefik.http.routers.traefik-rtr.service=api@internal"
       # Middlewares
       - "traefik.http.routers.traefik-rtr.middlewares=chain-oauth@file"
+      # Backup
+      - "backup.stop"
 
   socket-proxy:
     container_name: socket-proxy
@@ -226,6 +228,8 @@ services:
       ## HTTP Services
       - "traefik.http.routers.dashy-rtr.service=dashy-svc"
       - "traefik.http.services.dashy-svc.loadbalancer.server.port=80"
+      # Backup
+      - "backup.stop"
 
   overseerr:
     <<: *network-sec
@@ -248,6 +252,8 @@ services:
       # HTTP Services
       - "traefik.http.routers.overseerr-rtr.service=overseerr-svc"
       - "traefik.http.services.overseerr-svc.loadbalancer.server.port=5055"
+      # Backup
+      - "backup.stop"
 
   # DOWNLOADERS
 
@@ -271,6 +277,8 @@ services:
       # HTTP Services
       - "traefik.http.routers.sabnzbd-rtr.service=sabnzbd-svc"
       - "traefik.http.services.sabnzbd-svc.loadbalancer.server.port=8080"
+      # Backup
+      - "backup.stop"
 
   deluge:
     <<: *network-sec
@@ -292,6 +300,8 @@ services:
       # HTTP Services
       - "traefik.http.routers.deluge-rtr.service=deluge-svc"
       - "traefik.http.services.deluge-svc.loadbalancer.server.port=8112"
+      # Backup
+      - "backup.stop"
 
   # INDEXERS
 
@@ -313,6 +323,8 @@ services:
       # HTTP Services
       - "traefik.http.routers.prowlarr-rtr.service=prowlarr-svc"
       - "traefik.http.services.prowlarr-svc.loadbalancer.server.port=9696"
+      # Backup
+      - "backup.stop"
 
   # PVRS
 
@@ -344,6 +356,9 @@ services:
       - "traefik.http.routers.radarr-rtr.service=radarr-svc"
       - "traefik.http.routers.radarr-rtr-bypass.service=radarr-svc"
       - "traefik.http.services.radarr-svc.loadbalancer.server.port=7878"
+      # Backup
+      - "backup.stop"
+      - "backup.skip=MediaCover/**"
 
   sonarr:
     <<: *network-sec
@@ -373,6 +388,9 @@ services:
       - "traefik.http.routers.sonarr-rtr.service=sonarr-svc"
       - "traefik.http.routers.sonarr-rtr-bypass.service=sonarr-svc"
       - "traefik.http.services.sonarr-svc.loadbalancer.server.port=8989"
+      # Backup
+      - "backup.stop"
+      - "backup.skip=MediaCover/**"
 
   lidarr:
     <<: *network-sec
@@ -402,6 +420,9 @@ services:
       - "traefik.http.routers.lidarr-rtr.service=lidarr-svc"
       - "traefik.http.routers.lidarr-rtr-bypass.service=lidarr-svc"
       - "traefik.http.services.lidarr-svc.loadbalancer.server.port=8686"
+      # Backup
+      - "backup.stop"
+      - "backup.skip=MediaCover/**"
 
   bazarr:
     <<: *network-sec
@@ -423,6 +444,8 @@ services:
       # HTTP Services
       - "traefik.http.routers.bazarr-rtr.service=bazarr-svc"
       - "traefik.http.services.bazarr-svc.loadbalancer.server.port=6767"
+      # Backup
+      - "backup.stop"
 
   # MEDIA
 
@@ -446,6 +469,10 @@ services:
       PLEX_CLAIM_FILE: /run/secrets/plex_claim
       PLEX_UID: $PUID
       PLEX_GID: $PGID
+    labels:
+      # Backup
+      - "backup.stop"
+      - "backup.skip={Cache,Metadata,Media,Caches}/**"
 
   pal:
     <<: *network-sec
@@ -484,6 +511,9 @@ services:
       - "traefik.http.routers.tautulli-rtr.service=tautulli-svc"
       - "traefik.http.routers.tautulli-rtr-bypass.service=tautulli-svc"
       - "traefik.http.services.tautulli-svc.loadbalancer.server.port=8181"
+      # Backup
+      - "backup.stop"
+      - "backup.skip=cache/**"
 
   mealie:
     <<: *network-sec
@@ -506,6 +536,8 @@ services:
       # HTTP Serices
       - "traefik.http.routers.mealie-rtr.service=mealie-svc"
       - "traefik.http.services.mealie-svc.loadbalancer.server.port=80"
+      # Backup
+      - "backup.stop"
 
   metube:
     <<: *network-sec
@@ -655,6 +687,9 @@ services:
     environment:
       <<: *default-tz-puid-pgid
       FILE__MYSQL_ROOT_PASSWORD: /run/secrets/mysql_root_password
+    labels:
+      # Backup
+      - "backup.stop"
 
   guacd:
     <<: *network-sec

@@ -45,9 +45,11 @@ Setup Tips:
 1. Change DOCKER_OPTS to Respect IP Table Firewall
     1. `sudo vi /etc/default/docker`
     1. add `DOCKER_OPTS="--iptables=false"`
-1. Install rclone and configure
-    1. Copy down Cloud data
-    1. Setup sync `0 3 * * * rclone sync <MEDIA_DIR>/music/ Dropbox:Music --log-level=NOTICE --log-file=<LOG_DIR>/rclone.log`
+1. Install rclone and configure, setup root crontab jobs
+    1. `0 3 * * * rclone sync <MEDIA_DIR>/music/ Dropbox:Music --log-level=NOTICE --log-file=<LOG_DIR>/music.log`
+    1. `0 4 * * 1 cd <DOCKER_DIR> && ./backup.sh`
+    1. Add `backup.stop` label to containers you want to backup
+    1. Add `backup.skip=<COMMA-SEPARATED LIST OF PATHS>` label for directories you want to skip during backup
 1. If you have dynamic IP, setup cronjob to update your provider periodically:
     1. `0 3 * * * curl "http://dynamicdns.park-your-domain.com/update?host=<HOST>&domain=<DOMAIN>&password=<PASSWORD>" > <LOG_DIR>/dynamicdns.log 2>&1`
 
