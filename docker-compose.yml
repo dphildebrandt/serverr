@@ -18,17 +18,17 @@ networks:
 
 secrets:
   namecheap_api_user:
-    file: $DOCKER_DATA_DIR/secrets/namecheap_api_user
+    file: $DOCKER_DIR/secrets/namecheap_api_user
   namecheap_api_key:
-    file: $DOCKER_DATA_DIR/secrets/namecheap_api_key
+    file: $DOCKER_DIR/secrets/namecheap_api_key
   plex_claim:
-    file: $DOCKER_DATA_DIR/secrets/plex_claim
+    file: $DOCKER_DIR/secrets/plex_claim
   mysql_root_password:
-    file: $DOCKER_DATA_DIR/secrets/mysql_root_password
+    file: $DOCKER_DIR/secrets/mysql_root_password
   guac_mysql_password:
-    file: $DOCKER_DATA_DIR/secrets/guac_mysql_password
+    file: $DOCKER_DIR/secrets/guac_mysql_password
   plex_token:
-    file: $DOCKER_DATA_DIR/secrets/plex_token
+    file: $DOCKER_DIR/secrets/plex_token
 
   # This one loads the secret into the config, so you need the follow:
   # provider.google.client-id=
@@ -36,7 +36,7 @@ secrets:
   # secret=
   # whitelist=
   traefik-forward-auth:
-    file: $DOCKER_DATA_DIR/secrets/traefik-forward-auth
+    file: $DOCKER_DIR/secrets/traefik-forward-auth
 
 x-environment: &default-tz-puid-pgid
   TZ: $TZ
@@ -100,9 +100,9 @@ services:
         protocol: tcp
         mode: host
     volumes:
-      - $DOCKER_DATA_DIR/traefik/rules:/rules
-      - $DOCKER_DATA_DIR/traefik/acme/acme.json:/acme.json
-      - $DOCKER_DATA_DIR/traefik/traefik.log:/traefik.log
+      - $DOCKER_DIR/app-data/traefik/rules:/rules
+      - $DOCKER_DIR/app-data/traefik/acme/acme.json:/acme.json
+      - $DOCKER_DIR/app-data/traefik/traefik.log:/traefik.log
     secrets:
       - namecheap_api_user
       - namecheap_api_key
@@ -126,8 +126,6 @@ services:
       - "traefik.http.routers.traefik-rtr.service=api@internal"
       # Middlewares
       - "traefik.http.routers.traefik-rtr.middlewares=chain-oauth@file"
-      # Backup
-      - "backup.stop"
 
   socket-proxy:
     container_name: socket-proxy
@@ -203,8 +201,8 @@ services:
     container_name: dashy
     image: lissy93/dashy:latest
     volumes:
-      - $DOCKER_DATA_DIR/dashy/conf.yml:/app/public/conf.yml
-      - $DOCKER_DATA_DIR/dashy/item-icons:/app/public/item-icons
+      - $DOCKER_DIR/app-data/dashy/conf.yml:/app/public/conf.yml
+      - $DOCKER_DIR/app-data/dashy/item-icons:/app/public/item-icons
     environment:
       - NODE_ENV=production
       - UID=$PUID
@@ -228,15 +226,13 @@ services:
       ## HTTP Services
       - "traefik.http.routers.dashy-rtr.service=dashy-svc"
       - "traefik.http.services.dashy-svc.loadbalancer.server.port=80"
-      # Backup
-      - "backup.stop"
 
   overseerr:
     <<: *network-sec
     image: sctx/overseerr:latest
     container_name: overseerr
     volumes:
-      - $DOCKER_DATA_DIR/overseerr:/app/config
+      - $DOCKER_DIR/app-data/overseerr:/app/config
     environment:
       <<: *default-tz-puid-pgid
     labels:
@@ -262,7 +258,7 @@ services:
     image: linuxserver/sabnzbd:latest
     container_name: sabnzbd
     volumes:
-      - $DOCKER_DATA_DIR/sabnzbd:/config
+      - $DOCKER_DIR/app-data/sabnzbd:/config
       - $DOWNLOAD_DIR:/downloads
     environment:
       <<: *default-tz-puid-pgid
@@ -288,7 +284,7 @@ services:
       <<: *default-tz-puid-pgid
       UMASK_SET: 022
     volumes:
-      - $DOCKER_DATA_DIR/deluge:/config
+      - $DOCKER_DIR/app-data/deluge:/config
       - $DOWNLOAD_DIR:/downloads
     labels:
       - "traefik.enable=true"
@@ -300,8 +296,6 @@ services:
       # HTTP Services
       - "traefik.http.routers.deluge-rtr.service=deluge-svc"
       - "traefik.http.services.deluge-svc.loadbalancer.server.port=8112"
-      # Backup
-      - "backup.stop"
 
   # INDEXERS
 
@@ -310,7 +304,7 @@ services:
     image: linuxserver/prowlarr:develop
     container_name: prowlarr
     volumes:
-      - $DOCKER_DATA_DIR/prowlarr:/config
+      - $DOCKER_DIR/app-data/prowlarr:/config
     environment:
       <<: *default-tz-puid-pgid
     labels:
@@ -333,10 +327,12 @@ services:
     image: linuxserver/radarr:latest
     container_name: radarr
     volumes:
-      - $DOCKER_DATA_DIR/radarr:/config
+      - $DOCKER_DIR/app-data/radarr:/config
       - $DOWNLOAD_DIR:/downloads
       - $MEDIA_DIR/movies:/movies
       - "/etc/localtime:/etc/localtime:ro"
+      # Keep backups smaller/simpler. This data can be regenerated/redownloaded by Radarr.
+      - $DOCKER_DIR/temp/radarr/MediaCover:/config/MediaCover
     environment:
       <<: *default-tz-puid-pgid
     labels:
@@ -358,17 +354,18 @@ services:
       - "traefik.http.services.radarr-svc.loadbalancer.server.port=7878"
       # Backup
       - "backup.stop"
-      - "backup.skip=MediaCover/**"
 
   sonarr:
     <<: *network-sec
     image: linuxserver/sonarr:latest
     container_name: sonarr
     volumes:
-      - $DOCKER_DATA_DIR/sonarr:/config
+      - $DOCKER_DIR/app-data/sonarr:/config
       - $DOWNLOAD_DIR:/downloads
       - $MEDIA_DIR/tv:/tv
       - "/etc/localtime:/etc/localtime:ro"
+      # Keep backups smaller/simpler. This data can be regenerated/redownloaded by Sonarr.
+      - $DOCKER_DIR/temp/sonarr/MediaCover:/config/MediaCover
     environment:
       <<: *default-tz-puid-pgid
     labels:
@@ -390,17 +387,18 @@ services:
       - "traefik.http.services.sonarr-svc.loadbalancer.server.port=8989"
       # Backup
       - "backup.stop"
-      - "backup.skip=MediaCover/**"
 
   lidarr:
     <<: *network-sec
     image: linuxserver/lidarr:latest
     container_name: lidarr
     volumes:
-      - $DOCKER_DATA_DIR/lidarr:/config
+      - $DOCKER_DIR/app-data/lidarr:/config
       - $DOWNLOAD_DIR:/downloads
       - $MEDIA_DIR/music:/music
       - "/etc/localtime:/etc/localtime:ro"
+      # Keep backups smaller/simpler. This data can be regenerated/redownloaded by Lidarr.
+      - $DOCKER_DIR/temp/lidarr/MediaCover:/config/MediaCover
     environment:
       <<: *default-tz-puid-pgid
     labels:
@@ -422,14 +420,13 @@ services:
       - "traefik.http.services.lidarr-svc.loadbalancer.server.port=8686"
       # Backup
       - "backup.stop"
-      - "backup.skip=MediaCover/**"
 
   bazarr:
     <<: *network-sec
     image: linuxserver/bazarr:latest
     container_name: bazarr
     volumes:
-      - $DOCKER_DATA_DIR/bazarr:/config
+      - $DOCKER_DIR/app-data/bazarr:/config
       - $MEDIA_DIR/tv:/tv
       - $MEDIA_DIR/movies:/movies
     environment:
@@ -457,9 +454,13 @@ services:
     security_opt:
       - no-new-privileges:true
     volumes:
-      - $DOCKER_DATA_DIR/plexms:/config
+      - $DOCKER_DIR/app-data/plexms:/config
       - /dev/shm:/transcode  # offload transcoding to RAM
       - $MEDIA_DIR:/media
+      # Keep backups smaller/simpler. This data can be regenerated/redownloaded by Plex.
+      - $DOCKER_DIR/temp/plexms/Cache:/config/Library/Application Support/Plex Media Server/Cache
+      - $DOCKER_DIR/temp/plexms/Metadata:/config/Library/Application Support/Plex Media Server/Metadata
+      - $DOCKER_DIR/temp/plexms/Media:/config/Library/Application Support/Plex Media Server/Media
     devices:
       - /dev/dri:/dev/dri  # for hardware transcoding
     secrets:
@@ -472,7 +473,6 @@ services:
     labels:
       # Backup
       - "backup.stop"
-      - "backup.skip={Cache,Metadata,Media,Caches}/**"
 
   pal:
     <<: *network-sec
@@ -490,8 +490,10 @@ services:
     image: linuxserver/tautulli:latest
     container_name: tautulli
     volumes:
-      - $DOCKER_DATA_DIR/tautulli/config:/config
-      - $DOCKER_DATA_DIR/plexms/Library/Application Support/Plex Media Server/Logs:/logs:ro  # For tautulli Plex log viewer
+      - $DOCKER_DIR/app-data/tautulli/config:/config
+      - $DOCKER_DIR/app-data/plexms/Library/Application Support/Plex Media Server/Logs:/logs:ro  # For tautulli Plex log viewer
+      # Keep backups smaller/simpler. This data can be regenerated/redownloaded by Tautulli.
+      - $DOCKER_DIR/temp/tautulli/cache:/config/cache
     environment:
       <<: *default-tz-puid-pgid
     labels:
@@ -513,14 +515,13 @@ services:
       - "traefik.http.services.tautulli-svc.loadbalancer.server.port=8181"
       # Backup
       - "backup.stop"
-      - "backup.skip=cache/**"
 
   mealie:
     <<: *network-sec
     container_name: mealie
     image: hkotel/mealie:latest
     volumes:
-      - $DOCKER_DATA_DIR/mealie:/app/data
+      - $DOCKER_DIR/app-data/mealie:/app/data
     environment:
       <<: *default-tz-puid-pgid
       RECIPE_PUBLIC: "true"
@@ -570,7 +571,7 @@ services:
       - t2_proxy
       - socket_proxy
     volumes:
-      - $DOCKER_DATA_DIR/portainer/data:/data
+      - $DOCKER_DIR/app-data/portainer/data:/data
     environment:
       <<: *default-tz-puid-pgid
     labels:
@@ -583,6 +584,8 @@ services:
       # HTTP Services
       - "traefik.http.routers.portainer-rtr.service=portainer-svc"
       - "traefik.http.services.portainer-svc.loadbalancer.server.port=9000"
+      # Backup
+      - "backup.stop"
 
   dozzle:
     <<: *network-sec
@@ -654,7 +657,7 @@ services:
     container_name: speedtest
     image: henrywhitaker3/speedtest-tracker
     volumes:
-      - $DOCKER_DATA_DIR/speedtest:/config
+      - $DOCKER_DIR/temp/speedtest:/config
     environment:
       <<: *default-tz-puid-pgid
       OOKLA_EULA_GDPR: "true"
@@ -679,7 +682,7 @@ services:
     container_name: mariadb
     image: linuxserver/mariadb:latest
     volumes:
-      - $DOCKER_DATA_DIR/mariadb:/config
+      - $DOCKER_DIR/app-data/mariadb:/config
     ports:
       - 3306:3306
     secrets:

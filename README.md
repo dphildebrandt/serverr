@@ -6,21 +6,21 @@ Heavily based on [htpcBeginner/docker-traefik](https://github.com/htpcBeginner/d
 Setup Tips:
 1. Insall Docker and Docker Compose
     1. Set privileges on folder and sub-folders:
-        1. `sudo setfacl -Rdm g:docker:rwx ~/serverr`
-        1. `sudo chmod -R 775 ~/serverr`
+        1. `sudo setfacl -Rdm g:docker:rwx serverr`
+        1. `sudo chmod -R 775 serverr`
 1. Make sure to have domain/DNS up to date, and API access to provider (whitelist your IP if needed)
 1. Update router settings:
     1. Make machine static internal IP
     1. Port forward 80, 443 (Traefik) and 32400 (Plex)
-1. `cp ~/serverr/.env.template ~/serverr/.env` and fill out variables
+1. `cp serverr/.env.template serverr/.env` and fill out variables
 1. Setup Traefik2 files:
-    1. `touch ~/serverr/traefik2/acme/acme.json`
-    1. `chmod 600 ~/serverr/traefik2/acme/acme.json`
-    1. `touch ~/serverr/traefik2/traefik.log`
+    1. `touch serverr/app-data/traefik2/acme/acme.json`
+    1. `chmod 600 serverr/app-data/traefik2/acme/acme.json`
+    1. `touch serverr/app-data/traefik2/traefik.log`
 1. Setup docker secrets:
-    1. `mkdir ~/serverr/secrets`
-    1. `sudo chown root:root ~/serverr/secerts`
-    1. `sudo chmod 600 ~/serverr/secrets`
+    1. `mkdir serverr/secrets`
+    1. `sudo chown root:root serverr/secerts`
+    1. `sudo chmod 600 serverr/secrets`
     1. [Domain Name Providers](https://docs.traefik.io/https/acme/#providers) (I use Namecheap, `docker-compose.yml` will need to be updated if provider changes)
 1. Set up Google Cloud Platform oauth/credentials
 1. SSL certs:
@@ -47,9 +47,9 @@ Setup Tips:
     1. add `DOCKER_OPTS="--iptables=false"`
 1. Install rclone and configure, setup root crontab jobs
     1. `0 3 * * * rclone sync <MEDIA_DIR>/music/ Dropbox:Music --log-level=NOTICE --log-file=<LOG_DIR>/music.log`
-    1. `0 4 * * 1 cd <DOCKER_DIR> && ./backup.sh`
-    1. Add `backup.stop` label to containers you want to backup
-    1. Add `backup.skip=<COMMA-SEPARATED LIST OF PATHS>` label for directories you want to skip during backup
+    1. `0 4 * * 1 cd serverr && ./backup.sh`
+    1. Add `backup.stop` label to containers with databases to prevent corruption
+    1. Mount volumes of regenerable files in `serverr/temp/<service>` for smaller backups
 1. If you have dynamic IP, setup cronjob to update your provider periodically:
     1. `0 3 * * * curl "http://dynamicdns.park-your-domain.com/update?host=<HOST>&domain=<DOMAIN>&password=<PASSWORD>" > <LOG_DIR>/dynamicdns.log 2>&1`
 
