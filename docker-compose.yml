@@ -208,12 +208,6 @@ services:
       - NODE_ENV=production
       - UID=$PUID
       - GID=$PGID
-    healthcheck:
-      test: ['CMD', 'node', '/app/services/healthcheck']
-      interval: 1m30s
-      timeout: 10s
-      retries: 3
-      start_period: 40s
     labels:
       - "traefik.enable=true"
       ## HTTP Routers
@@ -600,12 +594,6 @@ services:
       DOZZLE_TAILSIZE: 300
       DOZZLE_FILTER: "status=running"
       DOCKER_HOST: $SOCKET_PROXY
-    healthcheck:
-      test: [ "CMD", "/dozzle", "healthcheck" ]
-      interval: 3s
-      timeout: 30s
-      retries: 5
-      start_period: 30s
     labels:
       - "traefik.enable=true"
       # HTTP Routers
