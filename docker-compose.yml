@@ -65,6 +65,7 @@ services:
       - --entryPoints.https.address=:443
       - --entryPoints.traefik.address=:8080
       - --api=true
+      - --api.insecure=true
       - --log=true
       - --log.level=WARN
       - --accessLog=true
