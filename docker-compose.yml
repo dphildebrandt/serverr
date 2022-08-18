@@ -619,6 +619,7 @@ services:
       DOCKER_HOST: $SOCKET_PROXY
     volumes:
       - $MEDIA_DIR:/data/hdd1:ro
+      - $DOCKER_DIR/app-data/glances/glances.conf:/etc/glances.conf
     labels:
       - "traefik.enable=true"
       # HTTP Routers
