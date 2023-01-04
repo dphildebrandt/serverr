@@ -67,7 +67,7 @@ services:
       - --api=true
       - --api.insecure=true
       - --log=true
-      - --log.level=WARN
+      - --log.level=DEBUG
       - --accessLog=true
       - --accessLog.filePath=/traefik.log
       - --accessLog.bufferingSize=100
@@ -75,8 +75,6 @@ services:
       - --providers.docker=true
       - --providers.docker.endpoint=$SOCKET_PROXY
       - --entrypoints.https.http.tls.options=tls-opts@file
-      - --entrypoints.https.http.tls.domains[0].main=$DOMAIN_NAME
-      - --entrypoints.https.http.tls.domains[0].sans=*.$DOMAIN_NAME
       - --providers.docker.exposedByDefault=false
       - --providers.docker.network=t2_proxy
       - --providers.docker.swarmMode=false
@@ -120,7 +118,7 @@ services:
       # HTTP Routers
       - "traefik.http.routers.traefik-rtr.entrypoints=https"
       - "traefik.http.routers.traefik-rtr.rule=Host(`traefik.$DOMAIN_NAME`)"
-      # - "traefik.http.routers.traefik-rtr.tls.certresolver=dns-namecheap"  # uncomment for first run of traefik, commented to force the use of wildcard certs
+      #- "traefik.http.routers.traefik-rtr.tls.certresolver=dns-namecheap"  # uncomment for first run of traefik, commented to force the use of wildcard certs
       - "traefik.http.routers.traefik-rtr.tls.domains[0].main=$DOMAIN_NAME"
       - "traefik.http.routers.traefik-rtr.tls.domains[0].sans=*.$DOMAIN_NAME"
       # Services - API
