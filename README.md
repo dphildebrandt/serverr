@@ -37,6 +37,7 @@ Setup Tips:
         1. Enter mariadb container, login as root, create the guac db, user/password, and set privileges
         1. In mariadb container, run guac initialization script `cat /config/guac_initdb.sql | mysql -u <guac_user> -p <guac_db>;`
         1. Login to guac as guacadmin, setup new admin, delete old admin. Configure connections.
+        1. Ubuntu no longer supports rsa, but guacd still uses it for now. Add `HostKeyAlgorithms +ssh-rsa` to the end of /etc/ssh/sshd_config and restart with `sudo systemctl restart ssh.service`.
     1. Tauttulli
         1. If using the official remote app, disable oauth, register device token, update .env, re-enable oauth.
 1. Install UFW:
