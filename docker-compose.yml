@@ -226,6 +226,8 @@ services:
     container_name: overseerr
     volumes:
       - $DOCKER_DIR/app-data/overseerr:/app/config
+      # Keep backups smaller/simpler. This data can be regenerated/redownloaded by Overseerr.
+      - $DOCKER_DIR/temp/overseerr/cache:/app/config/cache
     environment:
       <<: *default-tz-puid-pgid
     labels:
