@@ -645,17 +645,11 @@ services:
   speedtest:
     <<: *network-sec
     container_name: speedtest
-    image: henrywhitaker3/speedtest-tracker
+    image: ghcr.io/alexjustesen/speedtest-tracker:latest
     volumes:
-      - $DOCKER_DIR/temp/speedtest:/config
+      - $DOCKER_DIR/app-data/speedtest:/config
     environment:
       <<: *default-tz-puid-pgid
-      OOKLA_EULA_GDPR: "true"
-    logging:
-      driver: "json-file"
-      options:
-        max-file: "10"
-        max-size: "200k"
     labels:
       - "traefik.enable=true"
       # HTTP Routers
