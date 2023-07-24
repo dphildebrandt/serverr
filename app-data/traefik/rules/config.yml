@@ -10,7 +10,7 @@ http:
         - tls-ops
       service: wled
 
-services:
+  services:
     wled:
       loadBalancer:
         servers:
