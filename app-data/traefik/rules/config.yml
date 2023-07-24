@@ -3,7 +3,7 @@ http:
     wled:
       entryPoints:
         - "https"
-      rule: "Host(`wled.$DOMAIN_NAME`)"
+      rule: 'Host(`wled.{{ env "DOMAIN_NAME" }}`)'
       middlewares:
         - chain-oauth
       tls:
