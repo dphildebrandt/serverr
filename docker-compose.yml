@@ -665,6 +665,8 @@ services:
       # HTTP Services
       - "traefik.http.routers.speedtest-rtr.service=speedtest-svc"
       - "traefik.http.services.speedtest-svc.loadbalancer.server.port=80"
+      # Backup
+      - "backup.stop"
 
   mariadb:
     <<: *network-sec
