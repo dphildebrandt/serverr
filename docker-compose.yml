@@ -483,7 +483,8 @@ services:
       <<: *default-tz-puid-pgid
       PLEX_URL: http://192.168.1.29:32400
       PLEX_TOKEN_FILE: /run/secrets/plex_token
-      UPDATE_LEVEL: "season"
+      UPDATE_LEVEL: season
+      IGNORE_TAGS: PAL_IGNORE 
 
   tautulli:
     <<: *network-sec
@@ -549,7 +550,7 @@ services:
     environment:
       UID: $PUID
       GID: $PGID
-      DELETE_FILE_ON_TRASHCAN: 'true'
+      DELETE_FILE_ON_TRASHCAN: "true"
     labels:
       - "traefik.enable=true"
       # HTTP Routers
@@ -598,7 +599,7 @@ services:
     environment:
       DOZZLE_LEVEL: info
       DOZZLE_TAILSIZE: 300
-      DOZZLE_FILTER: "status=running"
+      DOZZLE_FILTER: status=running
       DOCKER_HOST: $SOCKET_PROXY
     labels:
       - "traefik.enable=true"
@@ -621,7 +622,7 @@ services:
       - socket_proxy
     pid: host
     environment:
-      GLANCES_OPT: "-w --fs-free-space"
+      GLANCES_OPT: -w --fs-free-space
       DOCKER_HOST: $SOCKET_PROXY
     volumes:
       - $MEDIA_DIR:/data/hdd1:ro
