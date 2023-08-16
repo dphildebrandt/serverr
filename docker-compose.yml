@@ -545,10 +545,11 @@ services:
     container_name: metube
     image: alexta69/metube:latest
     volumes:
-      - $MEDIA_DIR/youtube:/downloads
+      - $DOCKER_DIR/app-data/metube:/downloads
     environment:
       UID: $PUID
       GID: $PGID
+      DELETE_FILE_ON_TRASHCAN: 'true'
     labels:
       - "traefik.enable=true"
       # HTTP Routers
