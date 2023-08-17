@@ -11,3 +11,7 @@ app-data/traefik/*
 !app-data/traefik/rules/*
 !README.md
 !.env.template
+!app-data/rallly
+app-data/rallly/*
+!app-data/rallly/config.env.template
+

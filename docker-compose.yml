@@ -250,6 +250,40 @@ services:
       # Backup
       - "backup.stop"
 
+  rallly_db:
+    <<: *network-sec
+    image: postgres:14.2
+    container_name: rallly_db
+    volumes:
+      - $DOCKER_DIR/app-data/rallly_db:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=db
+    labels:
+      # Backup
+      - "backup.stop"
+
+  rallly:
+    <<: *network-sec
+    image: lukevella/rallly:latest
+    container_name: rallly
+    depends_on:
+      - rallly_db
+    environment:
+      - DATABASE_URL=postgres://postgres:postgres@rallly_db:5432/db
+    env_file:
+      - $DOCKER_DIR/app-data/rallly/config.env
+    labels:
+      - "traefik.enable=true"
+      # HTTP Routers Auth
+      - "traefik.http.routers.rallly-rtr.entrypoints=https"
+      - "traefik.http.routers.rallly-rtr.rule=Host(`rallly.$DOMAIN_NAME`)"
+      # Middlewares
+      - "traefik.http.routers.rallly-rtr.middlewares=chain-no-auth@file"
+      # HTTP Services
+      - "traefik.http.routers.rallly-rtr.service=rallly-svc"
+      - "traefik.http.services.rallly-svc.loadbalancer.server.port=3000"
+
   # DOWNLOADERS
 
   sabnzbd:
