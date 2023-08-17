@@ -29,6 +29,8 @@ secrets:
     file: $DOCKER_DIR/secrets/guac_mysql_password
   plex_token:
     file: $DOCKER_DIR/secrets/plex_token
+  postgres_password:
+    file: $DOCKER_DIR/secrets/postgres_password
 
   # This one loads the secret into the config, so you need the follow:
   # provider.google.client-id=
@@ -250,27 +252,12 @@ services:
       # Backup
       - "backup.stop"
 
-  rallly_db:
-    <<: *network-sec
-    image: postgres:14.2
-    container_name: rallly_db
-    volumes:
-      - $DOCKER_DIR/app-data/rallly_db:/var/lib/postgresql/data
-    environment:
-      - POSTGRES_PASSWORD=postgres
-      - POSTGRES_DB=db
-    labels:
-      # Backup
-      - "backup.stop"
-
   rallly:
     <<: *network-sec
     image: lukevella/rallly:latest
     container_name: rallly
     depends_on:
-      - rallly_db
-    environment:
-      - DATABASE_URL=postgres://postgres:postgres@rallly_db:5432/db
+      - postgresdb
     env_file:
       - $DOCKER_DIR/app-data/rallly/config.env
     labels:
@@ -596,6 +583,42 @@ services:
       - "traefik.http.routers.metube-rtr.service=metube-svc"
       - "traefik.http.services.metube-svc.loadbalancer.server.port=8081"
 
+  # DATABASES
+
+  mariadb:
+    <<: *network-sec
+    container_name: mariadb
+    image: linuxserver/mariadb:latest
+    volumes:
+      - $DOCKER_DIR/app-data/mariadb:/config
+    ports:
+      - 3306:3306
+    secrets:
+      - mysql_root_password
+    environment:
+      <<: *default-tz-puid-pgid
+      FILE__MYSQL_ROOT_PASSWORD: /run/secrets/mysql_root_password
+    labels:
+      # Backup
+      - "backup.stop"
+
+  postgresdb:
+    <<: *network-sec
+    container_name: postgresdb
+    image: postgres:14.2
+    volumes:
+      - $DOCKER_DIR/app-data/postgresdb:/var/lib/postgresql/data
+    ports:
+      - 5432:5432
+    secrets:
+      - postgres_password
+    environment:
+      <<: *default-tz-puid-pgid
+      POSTGRES_PASSWORD_FILE: /run/secrets/postgres_password
+    labels:
+      # Backup
+      - "backup.stop"
+
   # UTILITY
 
   portainer:
@@ -704,23 +727,6 @@ services:
       # Backup
       - "backup.stop"
 
-  mariadb:
-    <<: *network-sec
-    container_name: mariadb
-    image: linuxserver/mariadb:latest
-    volumes:
-      - $DOCKER_DIR/app-data/mariadb:/config
-    ports:
-      - 3306:3306
-    secrets:
-      - mysql_root_password
-    environment:
-      <<: *default-tz-puid-pgid
-      FILE__MYSQL_ROOT_PASSWORD: /run/secrets/mysql_root_password
-    labels:
-      # Backup
-      - "backup.stop"
-
   guacd:
     <<: *network-sec
     container_name: guacd
@@ -730,6 +736,8 @@ services:
     <<: *network-sec
     image: guacamole/guacamole:latest
     container_name: guacamole
+    depends_on:
+      - mariadb
     secrets:
       - guac_mysql_password
     environment:
