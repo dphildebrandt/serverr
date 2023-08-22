@@ -54,7 +54,7 @@ x-networks: &network-sec
 
 services:
 
-  # FRONTENDS
+  # SECURITY
 
   traefik:
     <<: *network-sec
@@ -70,8 +70,9 @@ services:
       - --api.insecure=true
       - --log=true
       - --log.level=DEBUG
+      - --log.filePath=/logs/traefik.log
       - --accessLog=true
-      - --accessLog.filePath=/access.log
+      - --accessLog.filePath=/logs/access.log
       - --accessLog.bufferingSize=100
       - --accessLog.filters.statusCodes=204-299,400-499,500-599
       - --providers.docker=true
@@ -106,7 +107,7 @@ services:
     volumes:
       - $DOCKER_DIR/app-data/traefik/rules:/rules
       - $DOCKER_DIR/app-data/traefik/acme/acme.json:/acme.json
-      - $DOCKER_DIR/app-data/traefik/traefik.log:/traefik.log
+      - $DOCKER_DIR/logs/traefik:/logs
     secrets:
       - namecheap_api_user
       - namecheap_api_key
@@ -201,6 +202,36 @@ services:
       # Middlewares
       - "traefik.http.routers.oauth-rtr.middlewares=chain-oauth@file"
 
+  crowdsec:
+    <<: *network-sec
+    container_name: crowdsec
+    image: crowdsecurity/crowdsec
+    ports:
+      - 8080:8080
+    environment:
+      COLLECTIONS: "crowdsecurity/traefik crowdsecurity/http-cve crowdsecurity/whitelist-good-actors crowdsecurity/iptables crowdsecurity/linux crowdsecurity/nginx crowdsecurity/sshd"
+      GUID: "${GID-1000}"
+    volumes:
+      - $DOCKER_DIR/logs/traefik:/logs/traefik:ro
+      - /var/log:/var/log:ro
+      - $DOCKER_DIR/app-data/crowdsec/data:/var/lib/crowdsec/data
+      - $DOCKER_DIR/app-data/crowdsec/config:/etc/crowdsec
+    labels:
+      # Backup
+      - "backup.stop"
+
+  traefik-bouncer:
+    <<: *network-sec
+    container_name: traefik-bouncer
+    image: fbonalair/traefik-crowdsec-bouncer
+    environment:
+      GIN_MODE: release
+      CROWDSEC_BOUNCER_API_KEY: $CROWDSEC_BOUNCER_TRAEFIK_API_KEY
+      CROWDSEC_AGENT_HOST: crowdsec:8080
+      CROWDSEC_BOUNCER_LOG_LEVEL: 2
+
+  # FRONTENDS
+
   dashy:
     <<: *network-sec
     container_name: dashy
@@ -270,6 +301,30 @@ services:
       # HTTP Services
       - "traefik.http.routers.rallly-rtr.service=rallly-svc"
       - "traefik.http.services.rallly-svc.loadbalancer.server.port=3000"
+
+  mealie:
+    <<: *network-sec
+    container_name: mealie
+    image: hkotel/mealie:latest
+    volumes:
+      - $DOCKER_DIR/app-data/mealie:/app/data
+    environment:
+      <<: *default-tz-puid-pgid
+      RECIPE_PUBLIC: "true"
+      RECIPE_SHOW_NUTRITION: "false"
+      RECIPE_DISABLE_COMMENTS: "true"
+    labels:
+      - "traefik.enable=true"
+      # HTTP Routers
+      - "traefik.http.routers.mealie-rtr.entrypoints=https"
+      - "traefik.http.routers.mealie-rtr.rule=Host(`recipes.$DOMAIN_NAME`)"
+      # Middlewares
+      - "traefik.http.routers.mealie-rtr.middlewares=chain-no-auth@file"
+      # HTTP Serices
+      - "traefik.http.routers.mealie-rtr.service=mealie-svc"
+      - "traefik.http.services.mealie-svc.loadbalancer.server.port=80"
+      # Backup
+      - "backup.stop"
 
   # DOWNLOADERS
 
@@ -535,30 +590,6 @@ services:
       - "traefik.http.routers.tautulli-rtr.service=tautulli-svc"
       - "traefik.http.routers.tautulli-rtr-bypass.service=tautulli-svc"
       - "traefik.http.services.tautulli-svc.loadbalancer.server.port=8181"
-      # Backup
-      - "backup.stop"
-
-  mealie:
-    <<: *network-sec
-    container_name: mealie
-    image: hkotel/mealie:latest
-    volumes:
-      - $DOCKER_DIR/app-data/mealie:/app/data
-    environment:
-      <<: *default-tz-puid-pgid
-      RECIPE_PUBLIC: "true"
-      RECIPE_SHOW_NUTRITION: "false"
-      RECIPE_DISABLE_COMMENTS: "true"
-    labels:
-      - "traefik.enable=true"
-      # HTTP Routers
-      - "traefik.http.routers.mealie-rtr.entrypoints=https"
-      - "traefik.http.routers.mealie-rtr.rule=Host(`recipes.$DOMAIN_NAME`)"
-      # Middlewares
-      - "traefik.http.routers.mealie-rtr.middlewares=chain-no-auth@file"
-      # HTTP Serices
-      - "traefik.http.routers.mealie-rtr.service=mealie-svc"
-      - "traefik.http.services.mealie-svc.loadbalancer.server.port=80"
       # Backup
       - "backup.stop"
 
