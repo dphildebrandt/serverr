@@ -2,9 +2,11 @@
 */
 !.gitignore
 !docker-compose.yml
-!backup.sh
 !app-data
 app-data/*
+!scripts
+scripts/*
+!scripts/backup.sh
 !app-data/traefik
 app-data/traefik/*
 !app-data/traefik/rules
