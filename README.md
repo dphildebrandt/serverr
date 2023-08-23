@@ -46,11 +46,6 @@ Setup Tips:
 1. Change DOCKER_OPTS to Respect IP Table Firewall
     1. `sudo vi /etc/default/docker`
     1. add `DOCKER_OPTS="--iptables=false"`
-1. Install rclone and configure, setup root crontab jobs
-    1. `0 3 * * * rclone sync <MEDIA_DIR>/music/ Dropbox:Music --log-level=NOTICE --log-file=<LOG_DIR>/music.log`
-    1. `0 4 * * 1 cd serverr && ./backup.sh`
-    1. Add `backup.stop` label to containers with databases to prevent corruption
-    1. Mount volumes of regenerable files in `serverr/temp/<service>` for smaller backups
-1. If you have dynamic IP, setup cronjob to update your provider periodically:
-    1. `0 3 * * * curl "http://dynamicdns.park-your-domain.com/update?host=<HOST>&domain=<DOMAIN>&password=<PASSWORD>" > <LOG_DIR>/dynamicdns.log 2>&1`
-
+1. Install snapraid, gitclone snapraid-runner and update conf, install and configure mergerFs, install rclone and configure to Dropbox
+1. Update scripts/crontab.template and copy to `sudo crontab -e`
+1. [CrowdSec Setup Guide](https://www.smarthomebeginner.com/crowdsec-docker-compose-1-fw-bouncer/)
