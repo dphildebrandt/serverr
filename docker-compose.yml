@@ -634,7 +634,9 @@ services:
       # HTTP Services
       - "traefik.http.routers.calibre-web-rtr.service=calibre-web-svc"
       - "traefik.http.services.calibre-web-svc.loadbalancer.server.port=8083"
-  
+      # Backup
+      - "backup.stop"
+ 
   # DATABASES
 
   mariadb:
