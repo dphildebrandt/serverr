@@ -7,6 +7,7 @@ app-data/*
 !scripts
 scripts/*
 !scripts/backup.sh
+!scripts/crontab.template
 !app-data/traefik
 app-data/traefik/*
 !app-data/traefik/rules
