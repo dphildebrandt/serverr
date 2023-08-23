@@ -614,6 +614,27 @@ services:
       - "traefik.http.routers.metube-rtr.service=metube-svc"
       - "traefik.http.services.metube-svc.loadbalancer.server.port=8081"
 
+  calibre-web:
+    <<: *network-sec
+    image: lscr.io/linuxserver/calibre-web:latest
+    container_name: calibre-web
+    environment:
+      <<: *default-tz-puid-pgid
+      OAUTHLIB_RELAX_TOKEN_SCOPE: 1
+    volumes:
+      - $DOCKER_DIR/app-data/calibre-web:/config
+      - $MEDIA_DIR/books:/books
+    labels:
+      - "traefik.enable=true"
+      # HTTP Routers
+      - "traefik.http.routers.calibre-web-rtr.entrypoints=https"
+      - "traefik.http.routers.calibre-web-rtr.rule=Host(`books.$DOMAIN_NAME`)"
+      # Middlewares
+      - "traefik.http.routers.calibre-web-rtr.middlewares=chain-no-auth@file"
+      # HTTP Services
+      - "traefik.http.routers.calibre-web-rtr.service=calibre-web-svc"
+      - "traefik.http.services.calibre-web-svc.loadbalancer.server.port=8083"
+  
   # DATABASES
 
   mariadb:
