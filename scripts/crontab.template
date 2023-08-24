@@ -1,5 +1,5 @@
 0 3 * * * rclone sync /media/storage/music/ Dropbox:Music --log-level=NOTICE --log-file=<DOCKER_DIR>/logs/music.log 
-0 3 * * * rclone sync Dropbox:Books /media/storage/books/ --log-level=NOTICE --log-file=<DOCKER_DIR>/logs/books.log
+0 3 * * * rclone sync /media/storage/books/ Dropbox:Books --log-level=NOTICE --log-file=<DOCKER_DIR>/logs/books.log
 
 0 3 * * * curl "http://dynamicdns.park-your-domain.com/update?host=@&domain=<DOMAIN>&password=<PASSWORD>" > <DOCKER_DIR>/logs/dynamicdns.log 2>&1 
 
