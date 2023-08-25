@@ -620,8 +620,10 @@ services:
     container_name: calibre
     environment:
       <<: *default-tz-puid-pgid
+      CALIBRE_OVERRIDE_DATABASE_PATH: /config/metadata.db
     volumes:
-      - $MEDIA_DIR/books:/config
+      - $DOCKER_DIR/app-data/calibre:/config
+      - $MEDIA_DIR/books:/books
     labels:
       - "traefik.enable=true"
       # HTTP Routers
@@ -632,6 +634,8 @@ services:
       # HTTP Services
       - "traefik.http.routers.calibre-rtr.service=calibre-svc"
       - "traefik.http.services.calibre-svc.loadbalancer.server.port=8080"
+      # Backup
+      - "backup.stop"
 
   calibre-web:
     <<: *network-sec
@@ -642,6 +646,7 @@ services:
     volumes:
       - $DOCKER_DIR/app-data/calibre-web:/config
       - $MEDIA_DIR/books:/books
+      - $DOCKER_DIR/app-data/calibre/metadata.db:/books/metadata.db
     labels:
       - "traefik.enable=true"
       # HTTP Routers
