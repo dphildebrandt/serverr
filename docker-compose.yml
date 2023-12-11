@@ -590,6 +590,29 @@ services:
       # Backup
       - "backup.stop"
 
+  readarr:
+    <<: *network-sec
+    image: linuxserver/readarr:nightly
+    container_name: readarr
+    environment:
+      <<: *default-tz-puid-pgid
+    volumes:
+      - $DOCKER_DIR/app-data/readarr:/config
+      - $DOWNLOAD_DIR:/downloads
+      - $MEDIA_DIR/books:/books
+    labels:
+      - "traefik.enable=true"
+      # HTTP Routers
+      - "traefik.http.routers.readarr-rtr.entrypoints=https"
+      - "traefik.http.routers.readarr-rtr.rule=Host(`readarr.$DOMAIN_NAME`)"
+      # Middlewares
+      - "traefik.http.routers.readarr-rtr.middlewares=chain-oauth@file"
+      # HTTP Services
+      - "traefik.http.routers.readarr-rtr.service=readarr-svc"
+      - "traefik.http.services.readarr-svc.loadbalancer.server.port=8787"
+      # Backup
+      - "backup.stop"
+
   bazarr:
     <<: *network-sec
     image: linuxserver/bazarr:latest
