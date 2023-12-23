@@ -69,7 +69,7 @@ services:
       - --api=true
       - --api.insecure=true
       - --log=true
-      - --log.level=DEBUG
+      - --log.level=INFO
       - --log.filePath=/logs/traefik.log
       - --accessLog=true
       - --accessLog.filePath=/logs/access.log
