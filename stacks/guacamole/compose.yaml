@@ -1,0 +1,69 @@
+secrets:
+  mysql_root_password:
+    file: $DOCKER_DIR/secrets/mysql_root_password
+  guac_mysql_password:
+    file: $DOCKER_DIR/secrets/guac_mysql_password
+
+services:
+  mariadb:
+    container_name: mariadb
+    image: linuxserver/mariadb:latest
+    networks:
+      - t2_proxy
+    security_opt:
+      - no-new-privileges:true
+    restart: unless-stopped
+    volumes:
+      - $DOCKER_DIR/app-data/mariadb:/config
+    ports:
+      - 3306:3306
+    secrets:
+      - mysql_root_password
+    environment:
+      TZ: $TZ
+      PUID: $PUID
+      PGID: $PGID
+      FILE__MYSQL_ROOT_PASSWORD: /run/secrets/mysql_root_password
+    labels:
+      # Backup
+      - "backup.stop"
+
+  guacd:
+    container_name: guacd
+    image: guacamole/guacd:latest
+    networks:
+      - t2_proxy
+    security_opt:
+      - no-new-privileges:true
+    restart: unless-stopped
+
+  guacamole:
+    container_name: guacamole
+    image: guacamole/guacamole:latest
+    networks:
+      - t2_proxy
+    security_opt:
+      - no-new-privileges:true
+    restart: unless-stopped
+    depends_on:
+      - mariadb
+    secrets:
+      - guac_mysql_password
+    environment:
+      GUACD_HOSTNAME: guacd
+      MYSQL_HOSTNAME: mariadb
+      MYSQL_PORT: 3306
+      MYSQL_DATABASE: guacamole
+      MYSQL_USER: guacdb_user
+      MYSQL_PASSWORD_FILE: /run/secrets/guac_mysql_password
+    labels:
+      - "traefik.enable=true"
+      # HTTP Routers
+      - "traefik.http.routers.guacamole-rtr.entrypoints=https"
+      - "traefik.http.routers.guacamole-rtr.rule=Host(`guac.$DOMAIN_NAME`)"
+      # Middlewares
+      - "traefik.http.routers.guacamole-rtr.middlewares=chain-oauth@file,add-guacamole"
+      - "traefik.http.middlewares.add-guacamole.addPrefix.prefix=/guacamole"
+      # HTTP Services
+      - "traefik.http.routers.guacamole-rtr.service=guacamole-svc"
+      - "traefik.http.services.guacamole-svc.loadbalancer.server.port=8080"

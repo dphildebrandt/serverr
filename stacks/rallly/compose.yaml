@@ -1,0 +1,50 @@
+secrets:
+  postgres_password:
+    file: $DOCKER_DIR/secrets/postgres_password
+
+services:
+  postgresdb:
+    container_name: postgresdb
+    image: postgres:14.2
+    networks:
+      - t2_proxy
+    security_opt:
+      - no-new-privileges:true
+    restart: unless-stopped
+    volumes:
+      - $DOCKER_DIR/app-data/postgresdb:/var/lib/postgresql/data
+    ports:
+      - 5432:5432
+    secrets:
+      - postgres_password
+    environment:
+      TZ: $TZ
+      PUID: $PUID
+      PGID: $PGID
+      POSTGRES_PASSWORD_FILE: /run/secrets/postgres_password
+    labels:
+      # Backup
+      - "backup.stop"
+
+  rallly:
+    image: lukevella/rallly:latest
+    container_name: rallly
+    networks:
+      - t2_proxy
+    security_opt:
+      - no-new-privileges:true
+    restart: unless-stopped
+    depends_on:
+      - postgresdb
+    env_file:
+      - $DOCKER_DIR/app-data/rallly/config.env
+    labels:
+      - "traefik.enable=true"
+      # HTTP Routers Auth
+      - "traefik.http.routers.rallly-rtr.entrypoints=https"
+      - "traefik.http.routers.rallly-rtr.rule=Host(`rallly.$DOMAIN_NAME`)"
+      # Middlewares
+      - "traefik.http.routers.rallly-rtr.middlewares=chain-no-auth@file"
+      # HTTP Services
+      - "traefik.http.routers.rallly-rtr.service=rallly-svc"
+      - "traefik.http.services.rallly-svc.loadbalancer.server.port=3000"

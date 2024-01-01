@@ -1,3 +1,7 @@
+include:
+  - $DOCKER_DIR/stacks/guacamole/compose.yaml
+  - $DOCKER_DIR/stacks/rallly/compose.yaml
+
 networks:
   t2_proxy:
     name: t2_proxy
@@ -21,14 +25,8 @@ secrets:
     file: $DOCKER_DIR/secrets/namecheap_api_key
   plex_claim:
     file: $DOCKER_DIR/secrets/plex_claim
-  mysql_root_password:
-    file: $DOCKER_DIR/secrets/mysql_root_password
-  guac_mysql_password:
-    file: $DOCKER_DIR/secrets/guac_mysql_password
   plex_token:
     file: $DOCKER_DIR/secrets/plex_token
-  postgres_password:
-    file: $DOCKER_DIR/secrets/postgres_password
 
   # This one loads secret into the config, so you need the following:
   # provider.google.client-id=
@@ -308,25 +306,6 @@ services:
     labels:
       # Backup
       - "backup.stop"
-
-  rallly:
-    <<: *network-sec
-    image: lukevella/rallly:latest
-    container_name: rallly
-    depends_on:
-      - postgresdb
-    env_file:
-      - $DOCKER_DIR/app-data/rallly/config.env
-    labels:
-      - "traefik.enable=true"
-      # HTTP Routers Auth
-      - "traefik.http.routers.rallly-rtr.entrypoints=https"
-      - "traefik.http.routers.rallly-rtr.rule=Host(`rallly.$DOMAIN_NAME`)"
-      # Middlewares
-      - "traefik.http.routers.rallly-rtr.middlewares=chain-no-auth@file"
-      # HTTP Services
-      - "traefik.http.routers.rallly-rtr.service=rallly-svc"
-      - "traefik.http.services.rallly-svc.loadbalancer.server.port=3000"
 
   mealie:
     <<: *network-sec
@@ -634,42 +613,6 @@ services:
       # Backup
       - "backup.stop"
 
-  # DATABASES
-
-  mariadb:
-    <<: *network-sec
-    container_name: mariadb
-    image: linuxserver/mariadb:latest
-    volumes:
-      - $DOCKER_DIR/app-data/mariadb:/config
-    ports:
-      - 3306:3306
-    secrets:
-      - mysql_root_password
-    environment:
-      <<: *default-tz-puid-pgid
-      FILE__MYSQL_ROOT_PASSWORD: /run/secrets/mysql_root_password
-    labels:
-      # Backup
-      - "backup.stop"
-
-  postgresdb:
-    <<: *network-sec
-    container_name: postgresdb
-    image: postgres:14.2
-    volumes:
-      - $DOCKER_DIR/app-data/postgresdb:/var/lib/postgresql/data
-    ports:
-      - 5432:5432
-    secrets:
-      - postgres_password
-    environment:
-      <<: *default-tz-puid-pgid
-      POSTGRES_PASSWORD_FILE: /run/secrets/postgres_password
-    labels:
-      # Backup
-      - "backup.stop"
-
   # UTILITY
 
   dozzle:
@@ -752,38 +695,6 @@ services:
       - "traefik.http.services.speedtest-svc.loadbalancer.server.port=80"
       # Backup
       - "backup.stop"
-
-  guacd:
-    <<: *network-sec
-    container_name: guacd
-    image: guacamole/guacd:latest
-
-  guacamole:
-    <<: *network-sec
-    image: guacamole/guacamole:latest
-    container_name: guacamole
-    depends_on:
-      - mariadb
-    secrets:
-      - guac_mysql_password
-    environment:
-      GUACD_HOSTNAME: guacd
-      MYSQL_HOSTNAME: mariadb
-      MYSQL_PORT: 3306
-      MYSQL_DATABASE: guacamole
-      MYSQL_USER: guacdb_user
-      MYSQL_PASSWORD_FILE: /run/secrets/guac_mysql_password
-    labels:
-      - "traefik.enable=true"
-      # HTTP Routers
-      - "traefik.http.routers.guacamole-rtr.entrypoints=https"
-      - "traefik.http.routers.guacamole-rtr.rule=Host(`guac.$DOMAIN_NAME`)"
-      # Middlewares
-      - "traefik.http.routers.guacamole-rtr.middlewares=chain-oauth@file,add-guacamole"
-      - "traefik.http.middlewares.add-guacamole.addPrefix.prefix=/guacamole"
-      # HTTP Services
-      - "traefik.http.routers.guacamole-rtr.service=guacamole-svc"
-      - "traefik.http.services.guacamole-svc.loadbalancer.server.port=8080"
 
   tautulli:
     <<: *network-sec
