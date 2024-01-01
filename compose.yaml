@@ -1,5 +1,3 @@
-version: "3.9"
-
 networks:
   t2_proxy:
     name: t2_proxy
@@ -114,7 +112,7 @@ services:
     environment:
       NAMECHEAP_API_USER_FILE: /run/secrets/namecheap_api_user
       NAMECHEAP_API_KEY_FILE: /run/secrets/namecheap_api_key
-      DOMAIN_NAME: ${DOMAIN_NAME}
+      DOMAIN_NAME: $DOMAIN_NAME
     labels:
       - "traefik.enable=true"
       # HTTP-to-HTTPS Redirect
