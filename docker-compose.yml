@@ -158,20 +158,20 @@ services:
       - BUILD=0
       - COMMIT=0
       - CONFIGS=0
-      - CONTAINERS=1  # Traefik, portainer, etc.
+      - CONTAINERS=1  # Traefik, watchtower, etc.
       - DISTRIBUTION=0
       - EXEC=0
-      - IMAGES=1  # Portainer, watchtower
-      - INFO=1  # Portainer
-      - NETWORKS=1  # Portainer, watchtower
+      - IMAGES=1  # watchtower
+      - INFO=0
+      - NETWORKS=1  # watchtower
       - NODES=0
       - PLUGINS=0
-      - SERVICES=1  # Portainer
+      - SERVICES=0
       - SESSION=0
       - SWARM=0
       - SYSTEM=0
-      - TASKS=1  # Portaienr
-      - VOLUMES=1  # Portainer
+      - TASKS=0
+      - VOLUMES=0
 
   oauth:
     <<: *network-sec
@@ -673,31 +673,6 @@ services:
       - "backup.stop"
 
   # UTILITY
-
-  portainer:
-    <<: *network-sec
-    image: portainer/portainer-ce:latest
-    container_name: portainer
-    command: -H $SOCKET_PROXY
-    networks:
-      - t2_proxy
-      - socket_proxy
-    volumes:
-      - $DOCKER_DIR/app-data/portainer/data:/data
-    environment:
-      <<: *default-tz-puid-pgid
-    labels:
-      - "traefik.enable=true"
-      # HTTP Routers
-      - "traefik.http.routers.portainer-rtr.entrypoints=https"
-      - "traefik.http.routers.portainer-rtr.rule=Host(`portainer.$DOMAIN_NAME`)"
-      # Middlewares
-      - "traefik.http.routers.portainer-rtr.middlewares=chain-oauth@file"
-      # HTTP Services
-      - "traefik.http.routers.portainer-rtr.service=portainer-svc"
-      - "traefik.http.services.portainer-svc.loadbalancer.server.port=9000"
-      # Backup
-      - "backup.stop"
 
   dozzle:
     <<: *network-sec
