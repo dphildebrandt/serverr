@@ -270,12 +270,9 @@ services:
       - "traefik.enable=true"
       # HTTP Routers
       - "traefik.http.routers.overseerr-rtr.entrypoints=https"
-      - "traefik.http.routers.overseerr-rtr.rule=Host(`request.$DOMAIN_NAME`) || HOST(`ombi.$DOMAIN_NAME`)"
+      - "traefik.http.routers.overseerr-rtr.rule=Host(`request.$DOMAIN_NAME`)"
       # Middlewares
-      - "traefik.http.middlewares.ombi-redirect.redirectregex.regex=^https?://ombi.$DOMAIN_NAME(/.*)?$$"
-      - "traefik.http.middlewares.ombi-redirect.redirectregex.replacement=https://request.$DOMAIN_NAME"
-      - "traefik.http.middlewares.ombi-redirect.redirectregex.permanent=true"
-      - "traefik.http.routers.overseerr-rtr.middlewares=chain-no-auth@file,ombi-redirect"
+      - "traefik.http.routers.overseerr-rtr.middlewares=chain-no-auth@file"
       # HTTP Services
       - "traefik.http.routers.overseerr-rtr.service=overseerr-svc"
       - "traefik.http.services.overseerr-svc.loadbalancer.server.port=5055"
