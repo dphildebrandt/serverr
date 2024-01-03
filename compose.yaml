@@ -154,7 +154,7 @@ services:
       - BUILD=0
       - COMMIT=0
       - CONFIGS=0
-      - CONTAINERS=1  # Traefik, watchtower, etc.
+      - CONTAINERS=1  # Traefik, watchtower, homepage
       - DISTRIBUTION=0
       - EXEC=0
       - IMAGES=1  # watchtower
@@ -228,30 +228,33 @@ services:
 
   # FRONTENDS
 
-  dashy:
-    <<: *network-sec
-    container_name: dashy
-    image: lissy93/dashy:latest
+  homepage:
+    image: ghcr.io/gethomepage/homepage:latest
+    container_name: homepage
+    networks:
+      - t2_proxy
+      - socket_proxy
+    security_opt:
+      - no-new-privileges:true
+    restart: unless-stopped
     volumes:
-      - $DOCKER_DIR/app-data/dashy/conf.yml:/app/public/conf.yml
-      - $DOCKER_DIR/app-data/dashy/item-icons:/app/public/item-icons
+      - $DOCKER_DIR/app-data/homepage:/app/config
+      - $DOCKER_DIR/app-data/homepage/icons:/app/public/icons
     environment:
-      - NODE_ENV=production
-      - UID=$PUID
-      - GID=$PGID
+      <<: *default-tz-puid-pgid
     labels:
       - "traefik.enable=true"
       ## HTTP Routers
-      - "traefik.http.routers.dashy-rtr.entrypoints=https"
-      - "traefik.http.routers.dashy-rtr.rule=Host(`$DOMAIN_NAME`) || Host(`www.$DOMAIN_NAME`)"
+      - "traefik.http.routers.homepage-rtr.entrypoints=https"
+      - "traefik.http.routers.homepage-rtr.rule=Host(`$DOMAIN_NAME`) || Host(`www.$DOMAIN_NAME`)"
       ## Middlewares
-      - "traefik.http.middlewares.dashy-redirect.redirectregex.regex=^https?://$DOMAIN_NAME(/.*)?$$"
-      - "traefik.http.middlewares.dashy-redirect.redirectregex.replacement=https://www.$DOMAIN_NAME$${1}"
-      - "traefik.http.middlewares.dashy-redirect.redirectregex.permanent=true"
-      - "traefik.http.routers.dashy-rtr.middlewares=chain-oauth@file,dashy-redirect"
+      - "traefik.http.middlewares.homepage-redirect.redirectregex.regex=^https?://$DOMAIN_NAME(/.*)?$$"
+      - "traefik.http.middlewares.homepage-redirect.redirectregex.replacement=https://www.$DOMAIN_NAME$${1}"
+      - "traefik.http.middlewares.homepage-redirect.redirectregex.permanent=true"
+      - "traefik.http.routers.homepage-rtr.middlewares=chain-oauth@file,homepage-redirect"
       ## HTTP Services
-      - "traefik.http.routers.dashy-rtr.service=dashy-svc"
-      - "traefik.http.services.dashy-svc.loadbalancer.server.port=80"
+      - "traefik.http.routers.homepage-rtr.service=homepage-svc"
+      - "traefik.http.services.homepage-svc.loadbalancer.server.port=3000"
 
   overseerr:
     <<: *network-sec
