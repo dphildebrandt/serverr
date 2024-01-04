@@ -240,6 +240,7 @@ services:
     volumes:
       - $DOCKER_DIR/app-data/homepage:/app/config
       - $DOCKER_DIR/app-data/homepage/icons:/app/public/icons
+      - $MEDIA_DIR:/storage
     environment:
       <<: *default-tz-puid-pgid
     labels:
@@ -673,7 +674,12 @@ services:
     environment:
       <<: *default-tz-puid-pgid
       DOCKER_HOST: $SOCKET_PROXY
-    command: -s "0 0 2 * * *" --cleanup
+      WATCHTOWER_HTTP_API_METRICS: true
+      WATCHTOWER_HTTP_API_TOKEN: $WATCHTOWER_TOKEN
+      WATCHTOWER_SCHEDULE: "0 0 2 * * *"
+      WATCHTOWER_CLEANUP: true
+    ports:
+      - 8085:8080
 
   speedtest:
     <<: *network-sec
