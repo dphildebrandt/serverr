@@ -469,6 +469,16 @@ services:
       # Backup
       - "backup.stop"
 
+  recyclarr:
+    <<: *network-sec
+    image: recyclarr/recyclarr:latest
+    container_name: recyclarr
+    volumes:
+      - $DOCKER_DIR/app-data/recyclarr:/config
+    user: $PUID:$PGID
+    environment:
+      <<: *default-tz-puid-pgid
+        
   radarr:
     <<: *network-sec
     image: linuxserver/radarr:latest
