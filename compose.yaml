@@ -400,6 +400,25 @@ services:
       # Backup
       - "backup.stop"
 
+  homeassistant:
+    <<: *network-sec
+    image: linuxserver/homeassistant:latest
+    container_name: homeassistant
+    environment:
+      <<: *default-tz-puid-pgid
+    volumes:
+      - $DOCKER_DIR/app-data/homeassistant/config:/config
+    labels:
+      - "traefik.enable=true"
+      # HTTP Routers
+      - "traefik.http.routers.homeassistant.entrypoints=https"
+      - "traefik.http.routers.homeassistant.rule=Host(`hass.$DOMAIN_NAME`)"
+      # Middlewares
+      - "traefik.http.routers.homeassistant.middlewares=chain-oauth@file"
+      # HTTP Services
+      - "traefik.http.routers.homeassistant.service=homeassistant-svc"
+      - "traefik.http.services.homeassistant-svc.loadbalancer.server.port=8123"
+ 
   # DOWNLOADERS
 
   sabnzbd:
