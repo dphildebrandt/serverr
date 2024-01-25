@@ -401,13 +401,18 @@ services:
       - "backup.stop"
 
   homeassistant:
-    <<: *network-sec
     image: linuxserver/homeassistant:latest
     container_name: homeassistant
+    security_opt:
+      - no-new-privileges=true
+    restart: unless-stopped
+      #network_mode: host
+    networks:
+      - t2_proxy
     environment:
       <<: *default-tz-puid-pgid
     volumes:
-      - $DOCKER_DIR/app-data/homeassistant/config:/config
+      - $DOCKER_DIR/app-data/homeassistant:/config
     labels:
       - "traefik.enable=true"
       # HTTP Routers
