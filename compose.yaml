@@ -45,7 +45,7 @@ x-networks: &network-sec
   networks:
     - t2_proxy
   security_opt:
-    - no-new-privileges:true
+    - no-new-privileges=true
   restart: unless-stopped
 
 services:
@@ -235,7 +235,7 @@ services:
       - t2_proxy
       - socket_proxy
     security_opt:
-      - no-new-privileges:true
+      - no-new-privileges=true
     restart: unless-stopped
     volumes:
       - $DOCKER_DIR/app-data/homepage:/app/config
@@ -286,7 +286,7 @@ services:
     restart: unless-stopped
     network_mode: host
     security_opt:
-      - no-new-privileges:true
+      - no-new-privileges=true
     volumes:
       - $DOCKER_DIR/app-data/plexms:/config
       - /dev/shm:/transcode  # offload transcoding to RAM

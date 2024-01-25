@@ -9,7 +9,7 @@ services:
     networks:
       - t2_proxy
     security_opt:
-      - no-new-privileges:true
+      - no-new-privileges=true
     restart: unless-stopped
     volumes:
       - $DOCKER_DIR/app-data/postgresdb:/var/lib/postgresql/data
@@ -32,7 +32,7 @@ services:
     networks:
       - t2_proxy
     security_opt:
-      - no-new-privileges:true
+      - no-new-privileges=true
     restart: unless-stopped
     depends_on:
       - postgresdb
