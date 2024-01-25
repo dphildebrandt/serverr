@@ -683,6 +683,7 @@ services:
       - socket_proxy
     pid: host
     environment:
+      TZ: $TZ
       GLANCES_OPT: -w --fs-free-space
       DOCKER_HOST: $SOCKET_PROXY
     volumes:
