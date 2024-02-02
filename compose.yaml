@@ -728,6 +728,7 @@ services:
       - $DOCKER_DIR/app-data/speedtest:/config
     environment:
       <<: *default-tz-puid-pgid
+      CACHE_DRIVER: file
     labels:
       - "traefik.enable=true"
       # HTTP Routers
