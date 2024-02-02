@@ -132,7 +132,9 @@ services:
   socket-proxy:
     container_name: socket-proxy
     image: tecnativa/docker-socket-proxy:latest
-    restart: always
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges=true
     networks:
       - socket_proxy
     privileged: true
