@@ -606,7 +606,7 @@ services:
 
   readarr:
     <<: *network-sec
-    image: linuxserver/readarr:nightly
+    image: linuxserver/readarr:develop
     container_name: readarr
     environment:
       <<: *default-tz-puid-pgid
