@@ -111,6 +111,8 @@ services:
       NAMECHEAP_API_USER_FILE: /run/secrets/namecheap_api_user
       NAMECHEAP_API_KEY_FILE: /run/secrets/namecheap_api_key
       DOMAIN_NAME: $DOMAIN_NAME
+      WLED_IP: $WLED_IP
+      HDHOMERUN_IP: $HDHOMERUN_IP
     labels:
       - "traefik.enable=true"
       # HTTP-to-HTTPS Redirect

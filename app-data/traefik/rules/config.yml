@@ -7,12 +7,28 @@ http:
       middlewares:
         - chain-oauth
       tls:
-        - tls-ops
+        - tls-opts
       service: wled
+
+    hdhomerun:
+      entryPoints:
+        - "https"
+      rule: 'Host(`hdhomerun.{{ env "DOMAIN_NAME" }}`)'
+      middlewares:
+        - chain-oauth
+      tls:
+        - tls-opts
+      service: hdhomerun
 
   services:
     wled:
       loadBalancer:
         servers:
-          - url: "http://192.168.1.22:80"
+          - url: {{ env "WLED_IP" }}
+        passHostHeader: true
+
+    hdhomerun:
+      loadBalancer:
+        servers:
+          - url: {{ env "HDHOMERUN_IP" }}
         passHostHeader: true
