@@ -21,11 +21,11 @@ services:
     labels:
       - "traefik.enable=true"
       # HTTP Routers Auth Bypass
-      - "traefik.http.routers.sonarr-rtr-bypass.entrypoints=https"
+      - "traefik.http.routers.sonarr-rtr-bypass.entrypoints=websecure"
       - "traefik.http.routers.sonarr-rtr-bypass.rule=Host(`sonarr.$DOMAIN_NAME`) && (Headers(`X-Api-Key`, `$SONARR_API_KEY`) || Query(`apikey`, `$SONARR_API_KEY`))"
       - "traefik.http.routers.sonarr-rtr-bypass.priority=100"
       # HTTP Routers Auth
-      - "traefik.http.routers.sonarr-rtr.entrypoints=https"
+      - "traefik.http.routers.sonarr-rtr.entrypoints=websecure"
       - "traefik.http.routers.sonarr-rtr.rule=Host(`sonarr.$DOMAIN_NAME`)"
       - "traefik.http.routers.sonarr-rtr.priority=99"
       # Middlewares

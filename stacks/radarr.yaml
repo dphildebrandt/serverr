@@ -21,11 +21,11 @@ services:
     labels:
       - "traefik.enable=true"
       # HTTP Routers Auth Bypass
-      - "traefik.http.routers.radarr-rtr-bypass.entrypoints=https"
+      - "traefik.http.routers.radarr-rtr-bypass.entrypoints=websecure"
       - "traefik.http.routers.radarr-rtr-bypass.rule=Host(`radarr.$DOMAIN_NAME`) && (Headers(`X-Api-Key`, `$RADARR_API_KEY`) || Query(`apikey`, `$RADARR_API_KEY`))"
       - "traefik.http.routers.radarr-rtr-bypass.priority=100"
       # HTTP Routers Auth
-      - "traefik.http.routers.radarr-rtr.entrypoints=https"
+      - "traefik.http.routers.radarr-rtr.entrypoints=websecure"
       - "traefik.http.routers.radarr-rtr.rule=Host(`radarr.$DOMAIN_NAME`)"
       - "traefik.http.routers.radarr-rtr.priority=99"
       # Middlewares

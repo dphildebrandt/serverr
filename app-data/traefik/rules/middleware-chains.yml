@@ -3,9 +3,10 @@ http:
     chain-no-auth:
       chain:
         middlewares:
+          - middlewares-traefik-bouncer
           - middlewares-rate-limit
           - middlewares-secure-headers
-          - middlewares-https-redirectscheme
+          - middlewares-compress
     
     chain-oauth:
       chain:
@@ -14,4 +15,4 @@ http:
           - middlewares-rate-limit
           - middlewares-secure-headers
           - middlewares-oauth
-          - middlewares-https-redirectscheme
+          - middlewares-compress

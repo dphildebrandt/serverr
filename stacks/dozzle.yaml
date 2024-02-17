@@ -16,7 +16,7 @@ services:
     labels:
       - "traefik.enable=true"
       # HTTP Routers
-      - "traefik.http.routers.dozzle-rtr.entrypoints=https"
+      - "traefik.http.routers.dozzle-rtr.entrypoints=websecure"
       - "traefik.http.routers.dozzle-rtr.rule=Host(`dozzle.$DOMAIN_NAME`)"
       # Middlewares
       - "traefik.http.routers.dozzle-rtr.middlewares=chain-oauth@file"

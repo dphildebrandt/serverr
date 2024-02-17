@@ -18,7 +18,7 @@ services:
     labels:
       - "traefik.enable=true"
       # HTTP Routers
-      - "traefik.http.routers.calibre-rtr.entrypoints=https"
+      - "traefik.http.routers.calibre-rtr.entrypoints=websecure"
       - "traefik.http.routers.calibre-rtr.rule=Host(`calibre.$DOMAIN_NAME`)"
       # Middlewares
       - "traefik.http.routers.calibre-rtr.middlewares=chain-oauth@file"

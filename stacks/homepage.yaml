@@ -19,13 +19,10 @@ services:
     labels:
       - "traefik.enable=true"
       ## HTTP Routers
-      - "traefik.http.routers.homepage-rtr.entrypoints=https"
-      - "traefik.http.routers.homepage-rtr.rule=Host(`$DOMAIN_NAME`) || Host(`www.$DOMAIN_NAME`)"
+      - "traefik.http.routers.homepage-rtr.entrypoints=websecure"
+      - "traefik.http.routers.homepage-rtr.rule=Host(`$DOMAIN_NAME`, `www.$DOMAIN_NAME`)"
       ## Middlewares
-      - "traefik.http.middlewares.homepage-redirect.redirectregex.regex=^https?://$DOMAIN_NAME(/.*)?$$"
-      - "traefik.http.middlewares.homepage-redirect.redirectregex.replacement=https://www.$DOMAIN_NAME$${1}"
-      - "traefik.http.middlewares.homepage-redirect.redirectregex.permanent=true"
-      - "traefik.http.routers.homepage-rtr.middlewares=chain-oauth@file,homepage-redirect"
+      - "traefik.http.routers.homepage-rtr.middlewares=chain-oauth@file"
       ## HTTP Services
       - "traefik.http.routers.homepage-rtr.service=homepage-svc"
       - "traefik.http.services.homepage-svc.loadbalancer.server.port=3000"

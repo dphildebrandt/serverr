@@ -19,7 +19,7 @@ services:
     labels:
       - "traefik.enable=true"
       # HTTP Routers
-      - "traefik.http.routers.mealie-rtr.entrypoints=https"
+      - "traefik.http.routers.mealie-rtr.entrypoints=websecure"
       - "traefik.http.routers.mealie-rtr.rule=Host(`recipes.$DOMAIN_NAME`)"
       # Middlewares
       - "traefik.http.routers.mealie-rtr.middlewares=chain-no-auth@file"

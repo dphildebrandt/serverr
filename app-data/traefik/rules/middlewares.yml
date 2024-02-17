@@ -5,6 +5,9 @@ http:
         average: 100
         burst: 50
 
+    middlewares-compress:
+      compress: {}
+
     middlewares-secure-headers:
       headers:
         accessControlAllowMethods:
@@ -18,6 +21,7 @@ http:
         stsIncludeSubdomains: true
         stsPreload: true
         forceSTSHeader: true
+        customFrameOptionsValue: SAMEORIGIN
         contentTypeNosniff: true
         browserXssFilter: true
         referrerPolicy: "same-origin"
@@ -31,13 +35,7 @@ http:
         address: "http://oauth:4181"
         trustForwardHeader: true
         authResponseHeaders:
-          - "Remote-User"
-          - "Remote-Groups"
-
-    middlewares-https-redirectscheme:
-      redirectScheme:
-        scheme: https
-        permanent: true
+          - "X-Forwarded-User"
 
     middlewares-traefik-bouncer:
       forwardAuth:

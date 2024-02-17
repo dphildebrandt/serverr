@@ -18,7 +18,7 @@ services:
     labels:
       - "traefik.enable=true"
       # HTTP Routers
-      - "traefik.http.routers.glances-rtr.entrypoints=https"
+      - "traefik.http.routers.glances-rtr.entrypoints=websecure"
       - "traefik.http.routers.glances-rtr.rule=Host(`glances.$DOMAIN_NAME`)"
       # Middlewares
       - "traefik.http.routers.glances-rtr.middlewares=chain-oauth@file"

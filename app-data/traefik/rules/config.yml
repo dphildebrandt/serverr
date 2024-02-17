@@ -1,33 +1,33 @@
 http:
   routers:
-    wled:
+    wled-rtr:
       entryPoints:
-        - "https"
+        - websecure
       rule: 'Host(`wled.{{ env "DOMAIN_NAME" }}`)'
       middlewares:
         - chain-oauth
       tls:
-        - tls-opts
-      service: wled
+        options: tls-opts@file
+      service: wled-svc
 
-    hdhomerun:
+    hdhomerun-rtr:
       entryPoints:
-        - "https"
+        - websecure
       rule: 'Host(`hdhomerun.{{ env "DOMAIN_NAME" }}`)'
       middlewares:
         - chain-oauth
       tls:
-        - tls-opts
-      service: hdhomerun
+        options: tls-opts@file
+      service: hdhomerun-svc
 
   services:
-    wled:
+    wled-svc:
       loadBalancer:
         servers:
           - url: {{ env "WLED_IP" }}
         passHostHeader: true
 
-    hdhomerun:
+    hdhomerun-svc:
       loadBalancer:
         servers:
           - url: {{ env "HDHOMERUN_IP" }}

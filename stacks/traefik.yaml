@@ -11,29 +11,39 @@ services:
     command:
       - --global.checkNewVersion=true
       - --global.sendAnonymousUsage=false
-      - --entryPoints.http.address=:80
-      - --entryPoints.https.address=:443
+
+      - --entryPoints.web.address=:80
+      - --entryPoints.websecure.address=:443
       - --entryPoints.traefik.address=:8080
+      - --entrypoints.web.http.redirections.entrypoint.to=websecure
+      - --entrypoints.web.http.redirections.entrypoint.scheme=https
+      - --entrypoints.web.http.redirections.entrypoint.permanent=true
+
       - --api=true
+      - --api.dashboard=true
       - --api.insecure=true
       - --log=true
-      - --log.level=INFO
       - --log.filePath=/logs/traefik.log
+      - --log.level=INFO
       - --accessLog=true
       - --accessLog.filePath=/logs/access.log
       - --accessLog.bufferingSize=100
       - --accessLog.filters.statusCodes=204-299,400-499,500-599
+
       - --providers.docker=true
       - --providers.docker.endpoint=$SOCKET_PROXY
-      - --entrypoints.https.http.tls.options=tls-opts@file
       - --providers.docker.exposedByDefault=false
       - --providers.docker.network=t2_proxy
       - --providers.docker.swarmMode=false
+
       - --providers.file.directory=/rules
       - --providers.file.watch=true
-      - --entrypoints.https.http.tls.certresolver=dns-namecheap
-      - --entrypoints.https.http.tls.domains[0].main=$DOMAIN_NAME
-      - --entrypoints.https.http.tls.domains[0].sans=*.$DOMAIN_NAME
+
+      - --entrypoints.websecure.http.tls.options=tls-opts@file
+      - --entrypoints.websecure.http.tls.certresolver=dns-namecheap
+      - --entrypoints.websecure.http.tls.domains[0].main=$DOMAIN_NAME
+      - --entrypoints.websecure.http.tls.domains[0].sans=*.$DOMAIN_NAME
+
       #- --certificatesResolvers.dns-namecheap.acme.caServer=https://acme-staging-v02.api.letsencrypt.org/directory  # uncomment for testing
       - --certificatesResolvers.dns-namecheap.acme.email=$MY_EMAIL
       - --certificatesResolvers.dns-namecheap.acme.storage=/acme.json
@@ -70,17 +80,9 @@ services:
       HDHOMERUN_IP: $HDHOMERUN_IP
     labels:
       - "traefik.enable=true"
-      # HTTP-to-HTTPS Redirect
-      - "traefik.http.routers.http-catchall.entrypoints=http"
-      - "traefik.http.routers.http-catchall.rule=HostRegexp(`{host:.+}`)"
-      - "traefik.http.routers.http-catchall.middlewares=redirect-to-https"
-      - "traefik.http.middlewares.redirect-to-https.redirectscheme.scheme=https"
       # HTTP Routers
-      - "traefik.http.routers.traefik-rtr.entrypoints=https"
+      - "traefik.http.routers.traefik-rtr.entrypoints=websecure"
       - "traefik.http.routers.traefik-rtr.rule=Host(`traefik.$DOMAIN_NAME`)"
-      #- "traefik.http.routers.traefik-rtr.tls.certresolver=dns-namecheap"  # uncomment for first run of traefik, commented to force the use of wildcard certs
-      - "traefik.http.routers.traefik-rtr.tls.domains[0].main=$DOMAIN_NAME"
-      - "traefik.http.routers.traefik-rtr.tls.domains[0].sans=*.$DOMAIN_NAME"
       # Services - API
       - "traefik.http.routers.traefik-rtr.service=api@internal"
       # Middlewares
