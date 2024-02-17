@@ -1,0 +1,42 @@
+services:
+  socket-proxy:
+    container_name: socket-proxy
+    image: tecnativa/docker-socket-proxy:latest
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges=true
+    networks:
+      - socket_proxy
+    privileged: true
+    ports:
+      - "127.0.0.1:2375:2375"
+    volumes:
+      - "/var/run/docker.sock:/var/run/docker.sock"
+    environment:
+      - LOG_LEVEL=info
+      # Granted by Default
+      - EVENTS=1
+      - PING=1
+      - VERSION=1
+      # Revoked by Default
+      - AUTH=0
+      - SECRETS=0
+      - POST=1  # Watchtower
+      # GET options
+      - BUILD=0
+      - COMMIT=0
+      - CONFIGS=0
+      - CONTAINERS=1  # Traefik, watchtower, homepage
+      - DISTRIBUTION=0
+      - EXEC=0
+      - IMAGES=1  # watchtower
+      - INFO=0
+      - NETWORKS=1  # watchtower
+      - NODES=0
+      - PLUGINS=0
+      - SERVICES=0
+      - SESSION=0
+      - SWARM=0
+      - SYSTEM=0
+      - TASKS=0
+      - VOLUMES=0

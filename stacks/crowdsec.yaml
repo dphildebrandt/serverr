@@ -1,0 +1,22 @@
+services:
+  crowdsec:
+    container_name: crowdsec
+    image: crowdsecurity/crowdsec:latest
+    networks:
+      - t2_proxy
+    security_opt:
+      - no-new-privileges=true
+    restart: unless-stopped
+    ports:
+      - 8080:8080
+    environment:
+      COLLECTIONS: "crowdsecurity/traefik crowdsecurity/http-cve crowdsecurity/whitelist-good-actors crowdsecurity/iptables crowdsecurity/linux crowdsecurity/nginx crowdsecurity/sshd"
+      GUID: "${GID-1000}"
+    volumes:
+      - $DOCKER_DIR/logs/traefik:/logs/traefik:ro
+      - /var/log:/var/log:ro
+      - $DOCKER_DIR/app-data/crowdsec/data:/var/lib/crowdsec/data
+      - $DOCKER_DIR/app-data/crowdsec/config:/etc/crowdsec
+    labels:
+      # Backup
+      - "backup.stop"

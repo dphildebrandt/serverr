@@ -1,0 +1,25 @@
+services:
+  metube:
+    container_name: metube
+    image: alexta69/metube:latest
+    networks:
+      - t2_proxy
+    security_opt:
+      - no-new-privileges=true
+    restart: unless-stopped
+    volumes:
+      - $DOCKER_DIR/app-data/metube:/downloads
+    environment:
+      UID: $PUID
+      GID: $PGID
+      DELETE_FILE_ON_TRASHCAN: "true"
+    labels:
+      - "traefik.enable=true"
+      # HTTP Routers
+      - "traefik.http.routers.metube-rtr.entrypoints=https"
+      - "traefik.http.routers.metube-rtr.rule=Host(`metube.$DOMAIN_NAME`)"
+      # Middlewares
+      - "traefik.http.routers.metube-rtr.middlewares=chain-oauth@file"
+      # HTTP Serices
+      - "traefik.http.routers.metube-rtr.service=metube-svc"
+      - "traefik.http.services.metube-svc.loadbalancer.server.port=8081"

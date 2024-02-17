@@ -1,0 +1,29 @@
+services:
+  readarr:
+    image: linuxserver/readarr:develop
+    container_name: readarr
+    networks:
+      - t2_proxy
+    security_opt:
+      - no-new-privileges=true
+    restart: unless-stopped
+    environment:
+      TZ: $TZ
+      PUID: $PUID
+      PGID: $PGID
+    volumes:
+      - $DOCKER_DIR/app-data/readarr:/config
+      - $DOWNLOAD_DIR:/downloads
+      - $MEDIA_DIR/books:/books
+    labels:
+      - "traefik.enable=true"
+      # HTTP Routers
+      - "traefik.http.routers.readarr-rtr.entrypoints=https"
+      - "traefik.http.routers.readarr-rtr.rule=Host(`readarr.$DOMAIN_NAME`)"
+      # Middlewares
+      - "traefik.http.routers.readarr-rtr.middlewares=chain-oauth@file"
+      # HTTP Services
+      - "traefik.http.routers.readarr-rtr.service=readarr-svc"
+      - "traefik.http.services.readarr-svc.loadbalancer.server.port=8787"
+      # Backup
+      - "backup.stop"

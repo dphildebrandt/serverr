@@ -1,0 +1,87 @@
+secrets:
+  namecheap_api_user:
+    file: $DOCKER_DIR/secrets/namecheap_api_user
+  namecheap_api_key:
+    file: $DOCKER_DIR/secrets/namecheap_api_key
+
+services:
+  traefik:
+    container_name: traefik
+    image: traefik:latest
+    command:
+      - --global.checkNewVersion=true
+      - --global.sendAnonymousUsage=false
+      - --entryPoints.http.address=:80
+      - --entryPoints.https.address=:443
+      - --entryPoints.traefik.address=:8080
+      - --api=true
+      - --api.insecure=true
+      - --log=true
+      - --log.level=INFO
+      - --log.filePath=/logs/traefik.log
+      - --accessLog=true
+      - --accessLog.filePath=/logs/access.log
+      - --accessLog.bufferingSize=100
+      - --accessLog.filters.statusCodes=204-299,400-499,500-599
+      - --providers.docker=true
+      - --providers.docker.endpoint=$SOCKET_PROXY
+      - --entrypoints.https.http.tls.options=tls-opts@file
+      - --providers.docker.exposedByDefault=false
+      - --providers.docker.network=t2_proxy
+      - --providers.docker.swarmMode=false
+      - --providers.file.directory=/rules
+      - --providers.file.watch=true
+      - --entrypoints.https.http.tls.certresolver=dns-namecheap
+      - --entrypoints.https.http.tls.domains[0].main=$DOMAIN_NAME
+      - --entrypoints.https.http.tls.domains[0].sans=*.$DOMAIN_NAME
+      #- --certificatesResolvers.dns-namecheap.acme.caServer=https://acme-staging-v02.api.letsencrypt.org/directory  # uncomment for testing
+      - --certificatesResolvers.dns-namecheap.acme.email=$MY_EMAIL
+      - --certificatesResolvers.dns-namecheap.acme.storage=/acme.json
+      - --certificatesResolvers.dns-namecheap.acme.dnsChallenge.provider=namecheap
+      - --certificatesResolvers.dns-namecheap.acme.dnsChallenge.resolvers=1.1.1.1:53,1.0.0.1:53
+      - --certificatesResolvers.dns-namecheap.acme.dnsChallenge.delayBeforeCheck=90
+    networks:
+      - t2_proxy
+      - socket_proxy
+    security_opt:
+      - no-new-privileges=true
+    restart: unless-stopped
+    ports:
+      - target: 80
+        published: 80
+        protocol: tcp
+        mode: host
+      - target: 443
+        published: 443
+        protocol: tcp
+        mode: host
+    volumes:
+      - $DOCKER_DIR/app-data/traefik/rules:/rules
+      - $DOCKER_DIR/app-data/traefik/acme/acme.json:/acme.json
+      - $DOCKER_DIR/logs/traefik:/logs
+    secrets:
+      - namecheap_api_user
+      - namecheap_api_key
+    environment:
+      NAMECHEAP_API_USER_FILE: /run/secrets/namecheap_api_user
+      NAMECHEAP_API_KEY_FILE: /run/secrets/namecheap_api_key
+      DOMAIN_NAME: $DOMAIN_NAME
+      WLED_IP: $WLED_IP
+      HDHOMERUN_IP: $HDHOMERUN_IP
+    labels:
+      - "traefik.enable=true"
+      # HTTP-to-HTTPS Redirect
+      - "traefik.http.routers.http-catchall.entrypoints=http"
+      - "traefik.http.routers.http-catchall.rule=HostRegexp(`{host:.+}`)"
+      - "traefik.http.routers.http-catchall.middlewares=redirect-to-https"
+      - "traefik.http.middlewares.redirect-to-https.redirectscheme.scheme=https"
+      # HTTP Routers
+      - "traefik.http.routers.traefik-rtr.entrypoints=https"
+      - "traefik.http.routers.traefik-rtr.rule=Host(`traefik.$DOMAIN_NAME`)"
+      #- "traefik.http.routers.traefik-rtr.tls.certresolver=dns-namecheap"  # uncomment for first run of traefik, commented to force the use of wildcard certs
+      - "traefik.http.routers.traefik-rtr.tls.domains[0].main=$DOMAIN_NAME"
+      - "traefik.http.routers.traefik-rtr.tls.domains[0].sans=*.$DOMAIN_NAME"
+      # Services - API
+      - "traefik.http.routers.traefik-rtr.service=api@internal"
+      # Middlewares
+      - "traefik.http.routers.traefik-rtr.middlewares=chain-oauth@file"

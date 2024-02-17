@@ -1,0 +1,39 @@
+services:
+  radarr:
+    image: linuxserver/radarr:latest
+    container_name: radarr
+    networks:
+      - t2_proxy
+    security_opt:
+      - no-new-privileges=true
+    restart: unless-stopped
+    volumes:
+      - $DOCKER_DIR/app-data/radarr:/config
+      - $DOWNLOAD_DIR:/downloads
+      - $MEDIA_DIR/movies:/movies
+      - "/etc/localtime:/etc/localtime:ro"
+      # Keep backups smaller/simpler. This data can be regenerated/redownloaded by Radarr.
+      - $DOCKER_DIR/temp/radarr/MediaCover:/config/MediaCover
+    environment:
+      TZ: $TZ
+      PUID: $PUID
+      PGID: $PGID
+    labels:
+      - "traefik.enable=true"
+      # HTTP Routers Auth Bypass
+      - "traefik.http.routers.radarr-rtr-bypass.entrypoints=https"
+      - "traefik.http.routers.radarr-rtr-bypass.rule=Host(`radarr.$DOMAIN_NAME`) && (Headers(`X-Api-Key`, `$RADARR_API_KEY`) || Query(`apikey`, `$RADARR_API_KEY`))"
+      - "traefik.http.routers.radarr-rtr-bypass.priority=100"
+      # HTTP Routers Auth
+      - "traefik.http.routers.radarr-rtr.entrypoints=https"
+      - "traefik.http.routers.radarr-rtr.rule=Host(`radarr.$DOMAIN_NAME`)"
+      - "traefik.http.routers.radarr-rtr.priority=99"
+      # Middlewares
+      - "traefik.http.routers.radarr-rtr.middlewares=chain-oauth@file"
+      - "traefik.http.routers.radarr-rtr-bypass.middlewares=chain-no-auth@file"
+      # HTTP Services
+      - "traefik.http.routers.radarr-rtr.service=radarr-svc"
+      - "traefik.http.routers.radarr-rtr-bypass.service=radarr-svc"
+      - "traefik.http.services.radarr-svc.loadbalancer.server.port=7878"
+      # Backup
+      - "backup.stop"

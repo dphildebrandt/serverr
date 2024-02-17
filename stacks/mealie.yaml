@@ -1,0 +1,30 @@
+services:
+  mealie:
+    container_name: mealie
+    image: hkotel/mealie:latest
+    networks:
+      - t2_proxy
+    security_opt:
+      - no-new-privileges=true
+    restart: unless-stopped
+    volumes:
+      - $DOCKER_DIR/app-data/mealie:/app/data
+    environment:
+      TZ: $TZ
+      PUID: $PUID
+      PGID: $PGID
+      RECIPE_PUBLIC: "true"
+      RECIPE_SHOW_NUTRITION: "false"
+      RECIPE_DISABLE_COMMENTS: "true"
+    labels:
+      - "traefik.enable=true"
+      # HTTP Routers
+      - "traefik.http.routers.mealie-rtr.entrypoints=https"
+      - "traefik.http.routers.mealie-rtr.rule=Host(`recipes.$DOMAIN_NAME`)"
+      # Middlewares
+      - "traefik.http.routers.mealie-rtr.middlewares=chain-no-auth@file"
+      # HTTP Serices
+      - "traefik.http.routers.mealie-rtr.service=mealie-svc"
+      - "traefik.http.services.mealie-svc.loadbalancer.server.port=9000"
+      # Backup
+      - "backup.stop"

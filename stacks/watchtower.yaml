@@ -1,0 +1,20 @@
+services:
+  watchtower:
+    container_name: watchtower
+    image: containrrr/watchtower:latest
+    networks:
+      - socket_proxy
+    security_opt:
+      - no-new-privileges=true
+    restart: unless-stopped
+    environment:
+      TZ: $TZ
+      PUID: $PUID
+      PGID: $PGID
+      DOCKER_HOST: $SOCKET_PROXY
+      WATCHTOWER_HTTP_API_METRICS: true
+      WATCHTOWER_HTTP_API_TOKEN: $WATCHTOWER_TOKEN
+      WATCHTOWER_SCHEDULE: "0 0 2 * * *"
+      WATCHTOWER_CLEANUP: true
+    ports:
+      - 8085:8080

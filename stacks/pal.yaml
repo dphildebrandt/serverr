@@ -1,0 +1,23 @@
+secrets:
+  plex_token:
+    file: $DOCKER_DIR/secrets/plex_token
+
+services:
+  pal:
+    image: remirigal/plex-auto-languages:latest
+    container_name: pal
+    networks:
+      - t2_proxy
+    security_opt:
+      - no-new-privileges=true
+    restart: unless-stopped
+    secrets:
+      - plex_token
+    environment:
+      TZ: $TZ
+      PUID: $PUID
+      PGID: $PGID
+      PLEX_URL: http://172.17.0.1:32400
+      PLEX_TOKEN_FILE: /run/secrets/plex_token
+      UPDATE_LEVEL: season
+      IGNORE_TAGS: PAL_IGNORE

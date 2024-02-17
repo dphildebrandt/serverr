@@ -1,0 +1,16 @@
+services:
+  recyclarr:
+    image: recyclarr/recyclarr:latest
+    container_name: recyclarr
+    networks:
+      - t2_proxy
+    security_opt:
+      - no-new-privileges=true
+    restart: unless-stopped
+    volumes:
+      - $DOCKER_DIR/app-data/recyclarr:/config
+    user: $PUID:$PGID
+    environment:
+      TZ: $TZ
+      PUID: $PUID
+      PGID: $PGID

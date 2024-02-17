@@ -1,0 +1,29 @@
+services:
+  calibre:
+    image: linuxserver/calibre:latest
+    container_name: calibre
+    networks:
+      - t2_proxy
+    security_opt:
+      - no-new-privileges=true
+    restart: unless-stopped
+    environment:
+      TZ: $TZ
+      PUID: $PUID
+      PGID: $PGID
+      CALIBRE_OVERRIDE_DATABASE_PATH: /config/metadata.db
+    volumes:
+      - $DOCKER_DIR/app-data/calibre:/config
+      - $MEDIA_DIR/books:/books
+    labels:
+      - "traefik.enable=true"
+      # HTTP Routers
+      - "traefik.http.routers.calibre-rtr.entrypoints=https"
+      - "traefik.http.routers.calibre-rtr.rule=Host(`calibre.$DOMAIN_NAME`)"
+      # Middlewares
+      - "traefik.http.routers.calibre-rtr.middlewares=chain-oauth@file"
+      # HTTP Services
+      - "traefik.http.routers.calibre-rtr.service=calibre-svc"
+      - "traefik.http.services.calibre-svc.loadbalancer.server.port=8080"
+      # Backup
+      - "backup.stop"

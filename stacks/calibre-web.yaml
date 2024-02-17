@@ -1,0 +1,30 @@
+services:
+  calibre-web:
+    image: linuxserver/calibre-web:latest
+    container_name: calibre-web
+    networks:
+      - t2_proxy
+    security_opt:
+      - no-new-privileges=true
+    restart: unless-stopped
+    environment:
+      TZ: $TZ
+      PUID: $PUID
+      PGID: $PGID
+    volumes:
+      - $DOCKER_DIR/app-data/calibre-web:/config
+      - $MEDIA_DIR/books:/books
+      - $DOCKER_DIR/app-data/calibre/metadata.db:/books/metadata.db
+    labels:
+      - "traefik.enable=true"
+      # HTTP Routers
+      - "traefik.http.routers.calibre-web-rtr.entrypoints=https"
+      - "traefik.http.routers.calibre-web-rtr.rule=Host(`books.$DOMAIN_NAME`)"
+      # Middlewares
+      - "traefik.http.middlewares.kobo-sync-headers.headers.customrequestheaders.X-Scheme=https"
+      - "traefik.http.routers.calibre-web-rtr.middlewares=kobo-sync-headers,chain-no-auth@file"
+      # HTTP Services
+      - "traefik.http.routers.calibre-web-rtr.service=calibre-web-svc"
+      - "traefik.http.services.calibre-web-svc.loadbalancer.server.port=8083"
+      # Backup
+      - "backup.stop"

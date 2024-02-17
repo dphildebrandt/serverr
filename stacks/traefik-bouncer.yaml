@@ -1,0 +1,14 @@
+services:
+  traefik-bouncer:
+    container_name: traefik-bouncer
+    image: fbonalair/traefik-crowdsec-bouncer:latest
+    networks:
+      - t2_proxy
+    security_opt:
+      - no-new-privileges=true
+    restart: unless-stopped
+    environment:
+      GIN_MODE: release
+      CROWDSEC_BOUNCER_API_KEY: $CROWDSEC_BOUNCER_TRAEFIK_API_KEY
+      CROWDSEC_AGENT_HOST: crowdsec:8080
+      CROWDSEC_BOUNCER_LOG_LEVEL: 2

@@ -1,0 +1,32 @@
+secrets:
+  plex_claim:
+    file: $DOCKER_DIR/secrets/plex_claim
+
+services:
+  plexms:
+    image: plexinc/pms-docker:latest
+    container_name: plexms
+    restart: unless-stopped
+    network_mode: host
+    security_opt:
+      - no-new-privileges=true
+    volumes:
+      - $DOCKER_DIR/app-data/plexms:/config
+      - /dev/shm:/transcode  # offload transcoding to RAM
+      - $MEDIA_DIR:/media
+      # Keep backups smaller/simpler. This data can be regenerated/redownloaded by Plex.
+      - $DOCKER_DIR/temp/plexms/Cache:/config/Library/Application Support/Plex Media Server/Cache
+      - $DOCKER_DIR/temp/plexms/Metadata:/config/Library/Application Support/Plex Media Server/Metadata
+      - $DOCKER_DIR/temp/plexms/Media:/config/Library/Application Support/Plex Media Server/Media
+    devices:
+      - /dev/dri:/dev/dri  # for hardware transcoding
+    secrets:
+      - plex_claim
+    environment:
+      TZ: $TZ
+      PLEX_CLAIM_FILE: /run/secrets/plex_claim
+      PLEX_UID: $PUID
+      PLEX_GID: $PGID
+    labels:
+      # Backup
+      - "backup.stop"

@@ -1,0 +1,42 @@
+secrets:
+  # This one loads secret into the config, so you need the following:
+  # provider.google.client-id=
+  # provider.google.client-secret=
+  # secret=
+  # whitelist=
+  traefik-forward-auth:
+    file: $DOCKER_DIR/secrets/traefik-forward-auth
+
+services:
+  oauth:
+    container_name: oauth
+    image: thomseddon/traefik-forward-auth:latest
+    networks:
+      - t2_proxy
+    security_opt:
+      - no-new-privileges=true
+    restart: unless-stopped
+    environment:
+      - CONFIG=/config
+      - COOKIE_DOMAIN=$DOMAIN_NAME
+      - INSECURE_COOKIE=false
+      - AUTH_HOST=oauth.$DOMAIN_NAME
+      - URL_PATH=/_oauth
+      - LOG_LEVEL=warn
+      - LOG_FORMAT=text
+      - LIFETIME=2592000  # 30 days
+      - DEFAULT_ACTION=auth
+      - DEFAULT_PROVIDER=google
+    secrets:
+      - source: traefik-forward-auth
+        target: /config
+    labels:
+      - "traefik.enable=true"
+      # HTTP Routers
+      - "traefik.http.routers.oauth-rtr.entrypoints=https"
+      - "traefik.http.routers.oauth-rtr.rule=Host(`oauth.$DOMAIN_NAME`)"
+      # HTTP Services
+      - "traefik.http.routers.oauth-rtr.service=oauth-svc"
+      - "traefik.http.services.oauth-svc.loadbalancer.server.port=4181"
+      # Middlewares
+      - "traefik.http.routers.oauth-rtr.middlewares=chain-oauth@file"

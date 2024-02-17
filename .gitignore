@@ -18,6 +18,4 @@ app-data/traefik/*
 app-data/rallly/*
 !app-data/rallly/config.env.template
 !stacks
-stacks/*
-!stacks/guacamole
-!stacks/rallly
+!stacks/*
