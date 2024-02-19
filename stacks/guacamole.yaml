@@ -5,8 +5,8 @@ secrets:
     file: $DOCKER_DIR/secrets/guac_mysql_password
 
 services:
-  mariadb:
-    container_name: mariadb
+  guac-db:
+    container_name: guac-db
     image: linuxserver/mariadb:latest
     networks:
       - t2_proxy
@@ -14,7 +14,7 @@ services:
       - no-new-privileges=true
     restart: unless-stopped
     volumes:
-      - $DOCKER_DIR/app-data/mariadb:/config
+      - $DOCKER_DIR/app-data/guacamole/db:/config
     ports:
       - 3306:3306
     secrets:
@@ -46,12 +46,12 @@ services:
       - no-new-privileges=true
     restart: unless-stopped
     depends_on:
-      - mariadb
+      - guac-db
     secrets:
       - guac_mysql_password
     environment:
       GUACD_HOSTNAME: guacd
-      MYSQL_HOSTNAME: mariadb
+      MYSQL_HOSTNAME: guac-db
       MYSQL_PORT: 3306
       MYSQL_DATABASE: guacamole
       MYSQL_USER: guacdb_user

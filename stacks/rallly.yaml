@@ -3,8 +3,8 @@ secrets:
     file: $DOCKER_DIR/secrets/postgres_password
 
 services:
-  postgresdb:
-    container_name: postgresdb
+  rallly-db:
+    container_name: rallly-db
     image: postgres:14.2
     networks:
       - t2_proxy
@@ -12,7 +12,7 @@ services:
       - no-new-privileges=true
     restart: unless-stopped
     volumes:
-      - $DOCKER_DIR/app-data/postgresdb:/var/lib/postgresql/data
+      - $DOCKER_DIR/app-data/rallly/db:/var/lib/postgresql/data
     ports:
       - 5432:5432
     secrets:
@@ -35,7 +35,7 @@ services:
       - no-new-privileges=true
     restart: unless-stopped
     depends_on:
-      - postgresdb
+      - rallly-db
     env_file:
       - $DOCKER_DIR/app-data/rallly/config.env
     labels:
