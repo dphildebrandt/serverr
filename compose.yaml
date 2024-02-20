@@ -57,3 +57,4 @@ include:
   - $DOCKER_DIR/stacks/dozzle.yaml
   - $DOCKER_DIR/stacks/glances.yaml
   - $DOCKER_DIR/stacks/tautulli.yaml
+  - $DOCKER_DIR/stacks/changedetection.yaml

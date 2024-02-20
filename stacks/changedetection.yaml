@@ -1,0 +1,25 @@
+services:
+  changedetection:
+    image: lscr.io/linuxserver/changedetection.io:latest
+    container_name: changedetection
+    networks:
+      - t2_proxy
+    security_opt:
+      - no-new-privileges=true
+    restart: unless-stopped
+    environment:
+      PUID: $PUID
+      PGID: $PGID
+      TZ: $TZ
+    volumes:
+      - $DOCKER_DIR/app-data/changedetection:/config
+    labels:
+      - "traefik.enable=true"
+      # HTTP Routers Auth
+      - "traefik.http.routers.change-rtr.entrypoints=websecure"
+      - "traefik.http.routers.change-rtr.rule=Host(`change.$DOMAIN_NAME`)"
+      # Middlewares
+      - "traefik.http.routers.change-rtr.middlewares=chain-oauth@file"
+      # HTTP Services
+      - "traefik.http.routers.change-rtr.service=change-svc"
+      - "traefik.http.services.change-svc.loadbalancer.server.port=5000"
