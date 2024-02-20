@@ -1,0 +1,26 @@
+services:
+  maintainerr:
+    image: jorenn92/maintainerr:latest
+    container_name: maintainerr
+    networks:
+      - t2_proxy
+    security_opt:
+      - no-new-privileges=true
+    restart: unless-stopped
+    user: $PUID:$PGID
+    volumes:
+      - $DOCKER_DIR/app-data/maintainerr:/opt/data
+    environment:
+      TZ: $TZ
+    labels:
+      - "traefik.enable=true"
+      ## HTTP Routers
+      - "traefik.http.routers.maintainerr-rtr.entrypoints=websecure"
+      - "traefik.http.routers.maintainerr-rtr.rule=Host(`maintainerr.$DOMAIN_NAME`)"
+      ## Middlewares
+      - "traefik.http.routers.maintainerr-rtr.middlewares=chain-oauth@file"
+      ## HTTP Services
+      - "traefik.http.routers.maintainerr-rtr.service=maintainerr-svc"
+      - "traefik.http.services.maintainerr-svc.loadbalancer.server.port=6246"
+      # Backup
+      - "backup.stop"
