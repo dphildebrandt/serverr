@@ -47,6 +47,7 @@ services:
     restart: unless-stopped
     depends_on:
       - guac-db
+      - guacd
     secrets:
       - guac_mysql_password
     environment:
