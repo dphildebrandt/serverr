@@ -1,6 +1,6 @@
 services:
   changedetection:
-    image: lscr.io/linuxserver/changedetection.io:latest
+    image: dgtlmoon/changedetection.io:latest
     container_name: changedetection
     networks:
       - t2_proxy
@@ -11,8 +11,12 @@ services:
       PUID: $PUID
       PGID: $PGID
       TZ: $TZ
+      BASE_URL: https://change.$DOMAIN_NAME
+      PLAYWRIGHT_DRIVER_URL: ws://changedetection-chrome:3000/
     volumes:
-      - $DOCKER_DIR/app-data/changedetection:/config
+      - $DOCKER_DIR/app-data/changedetection:/datastore
+    depends_on:
+      - changedetection-chrome
     labels:
       - "traefik.enable=true"
       # HTTP Routers Auth
@@ -23,3 +27,12 @@ services:
       # HTTP Services
       - "traefik.http.routers.change-rtr.service=change-svc"
       - "traefik.http.services.change-svc.loadbalancer.server.port=5000"
+
+  changedetection-chrome:
+    container_name: changedetection-chrome
+    image: browserless/chrome
+    restart: unless-stopped
+    networks:
+      - t2_proxy
+    security_opt:
+      - no-new-privileges=true
