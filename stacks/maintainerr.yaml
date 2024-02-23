@@ -14,12 +14,12 @@ services:
       TZ: $TZ
     labels:
       - "traefik.enable=true"
-      ## HTTP Routers
+      # HTTP Routers
       - "traefik.http.routers.maintainerr-rtr.entrypoints=websecure"
       - "traefik.http.routers.maintainerr-rtr.rule=Host(`maintainerr.$DOMAIN_NAME`)"
-      ## Middlewares
+      # Middlewares
       - "traefik.http.routers.maintainerr-rtr.middlewares=chain-oauth@file"
-      ## HTTP Services
+      # HTTP Services
       - "traefik.http.routers.maintainerr-rtr.service=maintainerr-svc"
       - "traefik.http.services.maintainerr-svc.loadbalancer.server.port=6246"
       # Backup
