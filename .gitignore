@@ -19,3 +19,5 @@ app-data/rallly/*
 !app-data/rallly/config.env.template
 !stacks
 !stacks/*
+!stacks/archive
+!stacks/archive/*

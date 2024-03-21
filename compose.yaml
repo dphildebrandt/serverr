@@ -28,7 +28,6 @@ include:
 
   # DOWNLOADERS
   - $DOCKER_DIR/stacks/sabnzbd.yaml
-  - $DOCKER_DIR/stacks/deluge.yaml
 
   # PVRS
   - $DOCKER_DIR/stacks/radarr.yaml
