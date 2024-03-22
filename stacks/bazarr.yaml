@@ -27,3 +27,18 @@ services:
       - "traefik.http.services.bazarr-svc.loadbalancer.server.port=6767"
       # Backup
       - "backup.stop"
+
+  whisper:
+    image: onerahmet/openai-whisper-asr-webservice:latest
+    container_name: whisper
+    networks:
+      - t2_proxy
+    security_opt:
+      - no-new-privileges=true
+    restart: unless-stopped
+    environment: 
+      ASR_MODEL: base
+      ASR_ENGINE: faster_whisper
+    ports:
+      - 9000:9000
+
