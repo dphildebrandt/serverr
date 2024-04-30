@@ -22,7 +22,7 @@ services:
       - "traefik.enable=true"
       # HTTP Routers Auth Bypass
       - "traefik.http.routers.lidarr-rtr-bypass.entrypoints=websecure"
-      - "traefik.http.routers.lidarr-rtr-bypass.rule=Host(`lidarr.$DOMAIN_NAME`) && (Headers(`X-Api-Key`, `$LIDARR_API_KEY`) || Query(`apikey`, `$LIDARR_API_KEY`))"
+      - "traefik.http.routers.lidarr-rtr-bypass.rule=Host(`lidarr.$DOMAIN_NAME`) && (Header(`X-Api-Key`, `$LIDARR_API_KEY`) || Query(`apikey`, `$LIDARR_API_KEY`))"
       - "traefik.http.routers.lidarr-rtr-bypass.priority=100"
       # HTTP Routers Auth
       - "traefik.http.routers.lidarr-rtr.entrypoints=websecure"

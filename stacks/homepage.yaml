@@ -20,7 +20,7 @@ services:
       - "traefik.enable=true"
       # HTTP Routers
       - "traefik.http.routers.homepage-rtr.entrypoints=websecure"
-      - "traefik.http.routers.homepage-rtr.rule=Host(`$DOMAIN_NAME`, `www.$DOMAIN_NAME`)"
+      - "traefik.http.routers.homepage-rtr.rule=Host(`$DOMAIN_NAME`) || Host(`www.$DOMAIN_NAME`)"
       # Middlewares
       - "traefik.http.routers.homepage-rtr.middlewares=chain-oauth@file"
       # HTTP Services

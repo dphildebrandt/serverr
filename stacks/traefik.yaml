@@ -34,7 +34,6 @@ services:
       - --providers.docker.endpoint=$SOCKET_PROXY
       - --providers.docker.exposedByDefault=false
       - --providers.docker.network=t2_proxy
-      - --providers.docker.swarmMode=false
 
       - --providers.file.directory=/rules
       - --providers.file.watch=true
