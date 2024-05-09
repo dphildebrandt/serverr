@@ -9,6 +9,8 @@ services:
     restart: unless-stopped
     volumes:
       - $DOCKER_DIR/app-data/prowlarr:/config
+      # Keep backups smaller/simpler. This data can be regenerated/redownloaded by Prowlarr.
+      - $DOCKER_DIR/temp/prowlarr/Definitions:/config/Definitions
     environment:
       TZ: $TZ
       PUID: $PUID

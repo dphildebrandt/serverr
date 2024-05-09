@@ -15,6 +15,9 @@ services:
       - $DOCKER_DIR/app-data/readarr:/config
       - $DOWNLOAD_DIR:/downloads
       - $MEDIA_DIR/books:/books
+      - "/etc/localtime:/etc/localtime:ro"
+      # Keep backups smaller/simpler. This data can be regenerated/redownloaded by Readarr.
+      - $DOCKER_DIR/temp/readarr/MediaCover:/config/MediaCover
     labels:
       - "traefik.enable=true"
       # HTTP Routers
