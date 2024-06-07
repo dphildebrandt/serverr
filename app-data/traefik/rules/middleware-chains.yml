@@ -6,7 +6,6 @@ http:
           - middlewares-traefik-bouncer
           - middlewares-rate-limit
           - middlewares-secure-headers
-          - middlewares-compress
     
     chain-oauth:
       chain:
@@ -15,4 +14,3 @@ http:
           - middlewares-rate-limit
           - middlewares-secure-headers
           - middlewares-oauth
-          - middlewares-compress

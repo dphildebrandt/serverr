@@ -5,9 +5,6 @@ http:
         average: 100
         burst: 50
 
-    middlewares-compress:
-      compress: {}
-
     middlewares-secure-headers:
       headers:
         accessControlAllowMethods:
