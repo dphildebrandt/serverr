@@ -48,6 +48,7 @@ services:
       - --certificatesResolvers.dns-namecheap.acme.storage=/acme.json
       - --certificatesResolvers.dns-namecheap.acme.dnsChallenge.provider=namecheap
       - --certificatesResolvers.dns-namecheap.acme.dnsChallenge.resolvers=1.1.1.1:53,1.0.0.1:53
+      - --certificatesResolvers.dns-namecheap.acme.dnsChallenge.disablePropagationCheck=true
       - --certificatesResolvers.dns-namecheap.acme.dnsChallenge.delayBeforeCheck=90
     networks:
       - traefik_proxy
