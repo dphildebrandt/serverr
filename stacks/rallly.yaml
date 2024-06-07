@@ -7,7 +7,7 @@ services:
     container_name: rallly-db
     image: postgres:14.2
     networks:
-      - t2_proxy
+      - traefik_proxy
     security_opt:
       - no-new-privileges=true
     restart: unless-stopped
@@ -30,7 +30,7 @@ services:
     image: lukevella/rallly:latest
     container_name: rallly
     networks:
-      - t2_proxy
+      - traefik_proxy
     security_opt:
       - no-new-privileges=true
     restart: unless-stopped

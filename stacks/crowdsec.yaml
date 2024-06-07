@@ -3,7 +3,7 @@ services:
     container_name: crowdsec
     image: crowdsecurity/crowdsec:latest
     networks:
-      - t2_proxy
+      - traefik_proxy
     security_opt:
       - no-new-privileges=true
     restart: unless-stopped

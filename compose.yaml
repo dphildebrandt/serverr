@@ -1,6 +1,6 @@
 networks:
-  t2_proxy:
-    name: t2_proxy
+  traefik_proxy:
+    name: traefik_proxy
     driver: bridge
     ipam:
       config:

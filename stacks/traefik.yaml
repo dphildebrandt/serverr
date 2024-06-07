@@ -50,7 +50,7 @@ services:
       - --certificatesResolvers.dns-namecheap.acme.dnsChallenge.resolvers=1.1.1.1:53,1.0.0.1:53
       - --certificatesResolvers.dns-namecheap.acme.dnsChallenge.delayBeforeCheck=90
     networks:
-      - t2_proxy
+      - traefik_proxy
       - socket_proxy
     security_opt:
       - no-new-privileges=true

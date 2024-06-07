@@ -3,7 +3,7 @@ services:
     image: linuxserver/sonarr:latest
     container_name: sonarr
     networks:
-      - t2_proxy
+      - traefik_proxy
     security_opt:
       - no-new-privileges=true
     restart: unless-stopped

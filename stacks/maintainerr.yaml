@@ -3,7 +3,7 @@ services:
     image: jorenn92/maintainerr:latest
     container_name: maintainerr
     networks:
-      - t2_proxy
+      - traefik_proxy
     security_opt:
       - no-new-privileges=true
     restart: unless-stopped

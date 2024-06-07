@@ -5,7 +5,7 @@ services:
     restart: unless-stopped
     privileged: true
     networks:
-      - t2_proxy
+      - traefik_proxy
       - socket_proxy
     pid: host
     environment:

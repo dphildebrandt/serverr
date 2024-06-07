@@ -3,7 +3,7 @@ services:
     image: linuxserver/readarr:develop
     container_name: readarr
     networks:
-      - t2_proxy
+      - traefik_proxy
     security_opt:
       - no-new-privileges=true
     restart: unless-stopped

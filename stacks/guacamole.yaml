@@ -9,7 +9,7 @@ services:
     container_name: guac-db
     image: linuxserver/mariadb:latest
     networks:
-      - t2_proxy
+      - traefik_proxy
     security_opt:
       - no-new-privileges=true
     restart: unless-stopped
@@ -32,7 +32,7 @@ services:
     container_name: guacd
     image: guacamole/guacd:latest
     networks:
-      - t2_proxy
+      - traefik_proxy
     security_opt:
       - no-new-privileges=true
     restart: unless-stopped
@@ -41,7 +41,7 @@ services:
     container_name: guacamole
     image: guacamole/guacamole:latest
     networks:
-      - t2_proxy
+      - traefik_proxy
     security_opt:
       - no-new-privileges=true
     restart: unless-stopped

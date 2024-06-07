@@ -7,7 +7,7 @@ services:
     image: remirigal/plex-auto-languages:latest
     container_name: pal
     networks:
-      - t2_proxy
+      - traefik_proxy
     security_opt:
       - no-new-privileges=true
     restart: unless-stopped

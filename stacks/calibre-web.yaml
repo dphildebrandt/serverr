@@ -3,7 +3,7 @@ services:
     image: linuxserver/calibre-web:latest
     container_name: calibre-web
     networks:
-      - t2_proxy
+      - traefik_proxy
     security_opt:
       - no-new-privileges=true
     restart: unless-stopped

@@ -3,7 +3,7 @@ services:
     image: linuxserver/sabnzbd:latest
     container_name: sabnzbd
     networks:
-      - t2_proxy
+      - traefik_proxy
     security_opt:
       - no-new-privileges=true
     restart: unless-stopped

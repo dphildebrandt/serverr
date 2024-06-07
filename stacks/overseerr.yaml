@@ -3,7 +3,7 @@ services:
     image: sctx/overseerr:latest
     container_name: overseerr
     networks:
-      - t2_proxy
+      - traefik_proxy
     security_opt:
       - no-new-privileges=true
     restart: unless-stopped

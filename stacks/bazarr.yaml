@@ -3,7 +3,7 @@ services:
     image: linuxserver/bazarr:latest
     container_name: bazarr
     networks:
-      - t2_proxy
+      - traefik_proxy
     security_opt:
       - no-new-privileges=true
     restart: unless-stopped
@@ -32,7 +32,7 @@ services:
     image: onerahmet/openai-whisper-asr-webservice:latest
     container_name: whisper
     networks:
-      - t2_proxy
+      - traefik_proxy
     security_opt:
       - no-new-privileges=true
     restart: unless-stopped

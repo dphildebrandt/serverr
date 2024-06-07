@@ -3,7 +3,7 @@ services:
     container_name: dozzle
     image: amir20/dozzle:latest
     networks:
-      - t2_proxy
+      - traefik_proxy
       - socket_proxy
     security_opt:
       - no-new-privileges=true

@@ -3,7 +3,7 @@ services:
     image: linuxserver/tautulli:latest
     container_name: tautulli
     networks:
-      - t2_proxy
+      - traefik_proxy
     security_opt:
       - no-new-privileges=true
     restart: unless-stopped

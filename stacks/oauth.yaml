@@ -12,7 +12,7 @@ services:
     container_name: oauth
     image: thomseddon/traefik-forward-auth:latest
     networks:
-      - t2_proxy
+      - traefik_proxy
     security_opt:
       - no-new-privileges=true
     restart: unless-stopped
