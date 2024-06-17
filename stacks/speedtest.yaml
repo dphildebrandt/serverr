@@ -13,6 +13,7 @@ services:
       TZ: $TZ
       PUID: $PUID
       PGID: $PGID
+      APP_KEY: $SPEEDTEST_KEY
     labels:
       - "traefik.enable=true"
       # HTTP Routers
