@@ -10,9 +10,8 @@ services:
     restart: unless-stopped
     environment:
       DOZZLE_LEVEL: info
-      DOZZLE_TAILSIZE: 300
       DOZZLE_FILTER: status=running
-      DOCKER_HOST: $SOCKET_PROXY
+      DOZZLE_REMOTE_HOST: $SOCKET_PROXY
     labels:
       - "traefik.enable=true"
       # HTTP Routers
