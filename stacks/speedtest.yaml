@@ -14,6 +14,9 @@ services:
       PUID: $PUID
       PGID: $PGID
       APP_KEY: $SPEEDTEST_KEY
+      DB_CONNECTION: sqlite
+      SPEEDTEST_SCHEDULE: "*/20 * * * *"
+      DISPLAY_TIMEZONE: $TZ
     labels:
       - "traefik.enable=true"
       # HTTP Routers
