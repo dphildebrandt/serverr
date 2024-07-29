@@ -46,7 +46,6 @@ include:
   - $DOCKER_DIR/stacks/metube.yaml
 
   # MAINTENANCE
-  - $DOCKER_DIR/stacks/guacamole.yaml
   - $DOCKER_DIR/stacks/watchtower.yaml
   - $DOCKER_DIR/stacks/pal.yaml
   - $DOCKER_DIR/stacks/recyclarr.yaml
