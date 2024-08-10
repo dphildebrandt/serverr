@@ -14,7 +14,7 @@ services:
     volumes:
       - $DOCKER_DIR/app-data/calibre-web:/config
       - $MEDIA_DIR/books:/books
-      - $DOCKER_DIR/app-data/calibre/metadata.db:/books/metadata.db
+      - $DOCKER_DIR/app-data/calibre:/db
     labels:
       - "traefik.enable=true"
       # HTTP Routers
