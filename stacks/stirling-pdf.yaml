@@ -1,0 +1,26 @@
+services:
+  stirling-pdf:
+    container_name: stirling-pdf
+    image: frooodle/s-pdf:latest
+    networks:
+      - traefik_proxy
+    security_opt:
+      - no-new-privileges
+    restart: unless-stopped
+    volumes:
+      - $DOCKER_DIR/app-data/stirling-pdf:/usr/share/tessdata #Required for extra OCR languages
+      - $DOCKER_DIR/app-data/stirling-pdf/configs:/configs
+    environment:
+      - DOCKER_ENABLE_SECURITY=false
+      - INSTALL_BOOK_AND_ADVANCED_HTML_OPS=false
+      - LANGS=en_GB
+    labels:
+      - "traefik.enable=true"
+      # HTTP Routers
+      - "traefik.http.routers.stirling-pdf-rtr.entrypoints=websecure"
+      - "traefik.http.routers.stirling-pdf-rtr.rule=Host(`pdf.$DOMAIN_NAME`)"
+      # Middlewares
+      - "traefik.http.routers.stirling-pdf-rtr.middlewares=chain-oauth@file"
+      # HTTP Serices
+      - "traefik.http.routers.stirling-pdf-rtr.service=stirling-pdf-svc"
+      - "traefik.http.services.stirling-pdf-svc.loadbalancer.server.port=8080"
