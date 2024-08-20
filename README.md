@@ -1,10 +1,8 @@
 # serverr
-Docker, *arr-based, media server stack with Traefik 2, Google OAuth2, and LetsEncrypt
-
-Heavily based on [htpcBeginner/docker-traefik](https://github.com/htpcBeginner/docker-traefik)
+Docker media and home server stack with Docker Compose, Traefik, Google OAuth2, and LetsEncrypt
 
 Setup Tips:
-1. Insall Docker and Docker Compose
+1. Insall Docker
     1. Set privileges on folder and sub-folders:
         1. `sudo setfacl -Rdm g:docker:rwx serverr`
         1. `sudo chmod -R 775 serverr`
@@ -32,12 +30,6 @@ Setup Tips:
 1. Configure various containers via their subdomain.domain.com addresses, things to note:
     1. Sabnzbd 
         1. Have to access Sabnzbd via IP:Port/sabnzbd before whitelisting the subdomain in config
-    1. MariaDB and Guacamole
-        1. Copy initialization script `sudo docker run --rm guacamole/guacamole /opt/guacamole/bin/initdb.sh --mysql > mariadb/guac_initdb.sql`
-        1. Enter mariadb container, login as root, create the guac db, user/password, and set privileges
-        1. In mariadb container, run guac initialization script `cat /config/guac_initdb.sql | mysql -u <guac_user> -p <guac_db>;`
-        1. Login to guac as guacadmin, setup new admin, delete old admin. Configure connections.
-        1. Ubuntu no longer supports rsa, but guacd still uses it for now. Add `HostKeyAlgorithms +ssh-rsa` to the end of /etc/ssh/sshd_config and restart with `sudo systemctl restart ssh.service`.
     1. Tauttulli
         1. If using the official remote app, disable oauth, register device token, update .env, re-enable oauth.
 1. Install UFW:
