@@ -55,9 +55,9 @@ services:
     volumes:
       - $DOCKER_DIR/app-data/bar-assistant:/var/www/cocktails/storage/bar-assistant
     environment:
-      APP_URL: bar-api.$DOMAIN_NAME/bar
+      APP_URL: http://bar-api.$DOMAIN_NAME/bar
       MEILISEARCH_KEY: $MEILI_MASTER_KEY
-      MEILISEARCH_HOST: bar-search:7700 # This needs to be host that can be resolved from inside the container.
+      MEILISEARCH_HOST: http://bar-search:7700 # This needs to be host that can be resolved from inside the container.
       REDIS_HOST: bar-cache
       CACHE_DRIVER: redis # Change to "file" if not using redis
       SESSION_DRIVER: redis # Change to "file" if not using redis
@@ -87,8 +87,8 @@ services:
       - no-new-privileges
     restart: unless-stopped
     environment:
-      API_URL: bar-api.$DOMAIN_NAME/bar
-      MEILISEARCH_URL: bar-search.$DOMAIN_NAME/search
+      API_URL: http://bar-api.$DOMAIN_NAME/bar
+      MEILISEARCH_URL: http://bar-search.$DOMAIN_NAME/search
     labels:
       - "traefik.enable=true"
       # HTTP Routers Auth
