@@ -54,6 +54,18 @@ services:
       CACHE_DRIVER: redis # Change to "file" if not using redis
       SESSION_DRIVER: redis # Change to "file" if not using redis
       ALLOW_REGISTRATION: true
+    labels:
+      - "traefik.enable=true"
+      # HTTP Routers Auth
+      - "traefik.http.routers.bar-api-rtr.entrypoints=websecure"
+      - "traefik.http.routers.bar-api-rtr.rule=Host(`bar-api.$DOMAIN_NAME`)"
+      # Middlewares
+      - "traefik.http.routers.bar-api-rtr.middlewares=chain-no-auth@file"
+      # HTTP Services
+      - "traefik.http.routers.bar-api-rtr.service=bar-api-svc"
+      - "traefik.http.services.bar-api-svc.loadbalancer.server.port=8080"
+      # Backup
+      - "backup.stop"
 
   bar-web:
     image: barassistant/salt-rim:latest
