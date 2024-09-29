@@ -41,9 +41,9 @@ services:
     environment:
       ALLOW_EMPTY_PASSWORD: yes
 
-  bar-assistant:
+  bar-api:
     image: barassistant/server:latest
-    container_name: bar-assistant
+    container_name: bar-api
     depends_on:
       - bar-search
       - bar-cache
@@ -75,11 +75,11 @@ services:
       # Backup
       - "backup.stop"
 
-  salt-rim:
+  bar-web:
     image: barassistant/salt-rim:latest
-    container_name: salt-rim
+    container_name: bar-web
     depends_on:
-      - bar-assistant
+      - bar-api
     networks:
       - bar-net
       - traefik_proxy
