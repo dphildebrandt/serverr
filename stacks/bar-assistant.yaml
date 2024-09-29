@@ -27,6 +27,7 @@ services:
       - bar-search
     networks:
       - bar-net
+      - traefik_proxy
     security_opt:
       - no-new-privileges
     restart: unless-stopped
