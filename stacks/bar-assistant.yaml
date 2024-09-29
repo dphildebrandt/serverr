@@ -9,6 +9,8 @@ services:
     container_name: bar-search
     networks:
       - bar-net
+    ports:
+      - 7700:7700
     security_opt:
       - no-new-privileges=true
     restart: unless-stopped
@@ -17,18 +19,6 @@ services:
     environment:
       MEILI_MASTER_KEY: $MEILI_MASTER_KEY
       MEILI_ENV: production
-    labels:
-      - "traefik.enable=true"
-      # HTTP Routers Auth
-      - "traefik.http.routers.bar-search-rtr.entrypoints=websecure"
-      - "traefik.http.routers.bar-search-rtr.rule=Host(`bar-search.$DOMAIN_NAME`)"
-      # Middlewares
-      - "traefik.http.routers.bar-search-rtr.middlewares=chain-no-auth@file"
-      # HTTP Services
-      - "traefik.http.routers.bar-search-rtr.service=bar-search-svc"
-      - "traefik.http.services.bar-search-svc.loadbalancer.server.port=7700"
-      # Backup
-      - "backup.stop"
 
   bar-cache:
     image: redis:latest
@@ -49,31 +39,21 @@ services:
       - bar-cache
     networks:
       - bar-net
+    ports:
+      - 7701:8080
     security_opt:
       - no-new-privileges
     restart: unless-stopped
     volumes:
       - $DOCKER_DIR/app-data/bar-assistant:/var/www/cocktails/storage/bar-assistant
     environment:
-      APP_URL: http://bar-api.$DOMAIN_NAME/bar
+      APP_URL: http://bar-api:7701/bar
       MEILISEARCH_KEY: $MEILI_MASTER_KEY
       MEILISEARCH_HOST: http://bar-search:7700 # This needs to be host that can be resolved from inside the container.
       REDIS_HOST: bar-cache
       CACHE_DRIVER: redis # Change to "file" if not using redis
       SESSION_DRIVER: redis # Change to "file" if not using redis
       ALLOW_REGISTRATION: true
-    labels:
-      - "traefik.enable=true"
-      # HTTP Routers Auth
-      - "traefik.http.routers.bar-api-rtr.entrypoints=websecure"
-      - "traefik.http.routers.bar-api-rtr.rule=Host(`bar-api.$DOMAIN_NAME`)"
-      # Middlewares
-      - "traefik.http.routers.bar-api-rtr.middlewares=chain-no-auth@file"
-      # HTTP Services
-      - "traefik.http.routers.bar-api-rtr.service=bar-api-svc"
-      - "traefik.http.services.bar-api-svc.loadbalancer.server.port=8080"
-      # Backup
-      - "backup.stop"
 
   bar-web:
     image: barassistant/salt-rim:latest
@@ -87,8 +67,8 @@ services:
       - no-new-privileges
     restart: unless-stopped
     environment:
-      API_URL: http://bar-api.$DOMAIN_NAME/bar
-      MEILISEARCH_URL: http://bar-search.$DOMAIN_NAME/search
+      API_URL: http://bar-api:7701/bar
+      MEILISEARCH_URL: http://bar-search:7700/search
     labels:
       - "traefik.enable=true"
       # HTTP Routers Auth
