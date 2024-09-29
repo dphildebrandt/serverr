@@ -45,7 +45,7 @@ services:
       - no-new-privileges
     restart: unless-stopped
     volumes:
-      - $DOCKER_DIR/app-data/bar-assistant:/var/www/cocktails/storage/bar-assistant
+      - $DOCKER_DIR/app-data/bar-assistant/bar:/var/www/cocktails/storage/bar-assistant
     environment:
       APP_URL: http://bar-api:7701/bar
       MEILISEARCH_KEY: $MEILI_MASTER_KEY
