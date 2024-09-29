@@ -1,9 +1,15 @@
+networks:
+  bazarr-net:
+    name: bazarr-net
+    driver: bridge
+
 services:
   bazarr:
     image: linuxserver/bazarr:latest
     container_name: bazarr
     networks:
       - traefik_proxy
+      - bazarr-net
     security_opt:
       - no-new-privileges=true
     restart: unless-stopped
@@ -28,11 +34,11 @@ services:
       # Backup
       - "backup.stop"
 
-  whisper:
+  bazarr-whisper:
     image: onerahmet/openai-whisper-asr-webservice:latest
-    container_name: whisper
+    container_name: bazarr-whisper
     networks:
-      - traefik_proxy
+      - bazarr-net
     security_opt:
       - no-new-privileges=true
     restart: unless-stopped

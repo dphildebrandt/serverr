@@ -1,3 +1,11 @@
+networks:
+  rallly-net:
+    name: rallly-net
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 192.168.92.0/24
+
 secrets:
   postgres_password:
     file: $DOCKER_DIR/secrets/postgres_password
@@ -7,7 +15,7 @@ services:
     container_name: rallly-db
     image: postgres:14.2
     networks:
-      - traefik_proxy
+      - rallly-net
     security_opt:
       - no-new-privileges=true
     restart: unless-stopped
@@ -31,6 +39,7 @@ services:
     container_name: rallly
     networks:
       - traefik_proxy
+      - rallly-net
     security_opt:
       - no-new-privileges=true
     restart: unless-stopped
