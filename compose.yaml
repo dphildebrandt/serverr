@@ -45,6 +45,7 @@ include:
   - $DOCKER_DIR/stacks/rallly.yaml
   - $DOCKER_DIR/stacks/metube.yaml
   - $DOCKER_DIR/stacks/stirling-pdf.yaml
+  - $DOCKER_DIR/stacks/bar-assistant.yaml
 
   # MAINTENANCE
   - $DOCKER_DIR/stacks/watchtower.yaml

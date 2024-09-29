@@ -1,0 +1,79 @@
+networks:
+  bar-net:
+    name: bar-net
+    driver: bridge
+
+services:
+  bar-search:
+    image: getmeili/meilisearch:v1.8
+    container_name: bar-search
+    networks:
+      - bar-net
+    security_opt:
+      - no-new-privileges=true
+    restart: unless-stopped
+    volumes:
+      - $DOCKER_DIR/app-data/bar-assistant/meilisearch:/meili_data
+    environment:
+      MEILI_MASTER_KEY: $MEILI_MASTER_KEY
+      MEILI_ENV: production
+
+  bar-cache:
+    image: redis:latest
+    container_name: bar-cache
+    networks:
+      - bar-net
+    security_opt:
+      - no-new-privileges
+    restart: unless-stopped
+    environment:
+      ALLOW_EMPTY_PASSWORD: yes
+
+  bar-assistant:
+    image: barassistant/server:latest
+    container_name: bar-assistant
+    depends_on:
+      - bar-search
+      - bar-cache
+    networks:
+      - bar-net
+    security_opt:
+      - no-new-privileges
+    restart: unless-stopped
+    volumes:
+      - $DOCKER_DIR/app-data/bar-assistant:/var/www/cocktails/storage/bar-assistant
+    environment:
+      APP_URL: bar-assistant:3000/bar
+      MEILISEARCH_KEY: $MEILI_MASTER_KEY
+      MEILISEARCH_HOST: bar-search:7700 # This needs to be host that can be resolved from inside the container.
+      REDIS_HOST: bar-cache
+      CACHE_DRIVER: redis # Change to "file" if not using redis
+      SESSION_DRIVER: redis # Change to "file" if not using redis
+      ALLOW_REGISTRATION: true
+
+  salt-rim:
+    image: barassistant/salt-rim:latest
+    container_name: salt-rim
+    depends_on:
+      - bar-assistant
+    networks:
+      - bar-net
+      - traefik_proxy
+    security_opt:
+      - no-new-privileges
+    restart: unless-stopped
+    environment:
+      API_URL: bar-assistant:3000/bar
+      MEILISEARCH_URL: bar-search:7700/search
+    labels:
+      - "traefik.enable=true"
+      # HTTP Routers Auth
+      - "traefik.http.routers.bar-rtr.entrypoints=websecure"
+      - "traefik.http.routers.bar-rtr.rule=Host(`bar.$DOMAIN_NAME`)"
+      # Middlewares
+      - "traefik.http.routers.bar-rtr.middlewares=chain-oauth@file"
+      # HTTP Services
+      - "traefik.http.routers.bar-rtr.service=bar-svc"
+      - "traefik.http.services.bar-svc.loadbalancer.server.port=8080"
+      # Backup
+      - "backup.stop"
