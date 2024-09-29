@@ -65,8 +65,8 @@ services:
       - no-new-privileges
     restart: unless-stopped
     environment:
-      API_URL: https://bar-api.$DOMAIN_NAME/bar
-      MEILISEARCH_URL: http://bar-search:7700/search
+      API_URL: https://bar-api.$DOMAIN_NAME
+      MEILISEARCH_URL: http://bar-search:7700
     labels:
       - "traefik.enable=true"
       # HTTP Routers Auth
