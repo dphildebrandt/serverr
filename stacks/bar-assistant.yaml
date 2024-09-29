@@ -25,7 +25,6 @@ services:
     container_name: bar-api
     depends_on:
       - bar-search
-      - bar-cache
     networks:
       - bar-net
     security_opt:
