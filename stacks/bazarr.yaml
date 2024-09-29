@@ -1,12 +1,20 @@
+networks:
+  bazarr-net:
+    name: bazarr-net
+    driver: bridge
+
 services:
   bazarr:
     image: linuxserver/bazarr:latest
     container_name: bazarr
     networks:
       - traefik_proxy
+      - bazarr-net
     security_opt:
       - no-new-privileges=true
     restart: unless-stopped
+    depends_on:
+      - bazarr-whisper
     volumes:
       - $DOCKER_DIR/app-data/bazarr:/config
       - $MEDIA_DIR/tv:/tv
@@ -28,17 +36,15 @@ services:
       # Backup
       - "backup.stop"
 
-  whisper:
+  bazarr-whisper:
     image: onerahmet/openai-whisper-asr-webservice:latest
-    container_name: whisper
+    container_name: bazarr-whisper
     networks:
-      - traefik_proxy
+      - bazarr-net
     security_opt:
       - no-new-privileges=true
     restart: unless-stopped
     environment: 
       ASR_MODEL: base
       ASR_ENGINE: faster_whisper
-    ports:
-      - 9000:9000
 

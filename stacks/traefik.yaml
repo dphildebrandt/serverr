@@ -33,7 +33,7 @@ services:
       - --providers.docker=true
       - --providers.docker.endpoint=$SOCKET_PROXY
       - --providers.docker.exposedByDefault=false
-      - --providers.docker.network=t2_proxy
+      - --providers.docker.network=traefik_proxy
 
       - --providers.file.directory=/rules
       - --providers.file.watch=true

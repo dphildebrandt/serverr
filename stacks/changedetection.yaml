@@ -1,9 +1,15 @@
+networks:
+  changedetection-net:
+    name: changedetection-net
+    driver: bridge
+
 services:
   changedetection:
     image: dgtlmoon/changedetection.io:latest
     container_name: changedetection
     networks:
       - traefik_proxy
+      - changedetection-net
     security_opt:
       - no-new-privileges=true
     restart: unless-stopped
@@ -33,6 +39,6 @@ services:
     image: browserless/chrome
     restart: unless-stopped
     networks:
-      - traefik_proxy
+      - changedetection-net
     security_opt:
       - no-new-privileges=true
