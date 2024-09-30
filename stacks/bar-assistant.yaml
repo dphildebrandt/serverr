@@ -19,9 +19,7 @@ services:
       MEILI_ENV: production
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.bar-search.rule=Host(`bar-search.$DOMAIN_NAME`) && PathPrefix(`/search`)"
-      - "traefik.http.middlewares.search-strip.stripprefix.prefixes=/search"
-      - "traefik.http.routers.bar-search.middlewares=search-strip"
+      - "traefik.http.routers.bar-search.rule=Host(`bar-search.$DOMAIN_NAME`)"
 
   bar-api:
     image: barassistant/server:v4
@@ -46,9 +44,7 @@ services:
       ALLOW_REGISTRATION: true
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.bar-api.rule=Host(`bar-api.$DOMAIN_NAME`) && PathPrefix(`/bar`)"
-      - "traefik.http.middlewares.api-strip.stripprefix.prefixes=/bar"
-      - "traefik.http.routers.bar-search.middlewares=api-strip"
+      - "traefik.http.routers.bar-api.rule=Host(`bar-api.$DOMAIN_NAME`)"
 
   bar-web:
     image: barassistant/salt-rim:v3
@@ -62,8 +58,8 @@ services:
       - no-new-privileges
     restart: unless-stopped
     environment:
-      API_URL: http://bar.$DOMAIN_NAME/bar
-      MEILISEARCH_URL: http://bar.$DOMAIN_NAME/search
+      API_URL: http://bar-api.$DOMAIN_NAME
+      MEILISEARCH_URL: http://bar-search.$DOMAIN_NAME
     labels:
       - "traefik.enable=true"
       # HTTP Routers Auth
