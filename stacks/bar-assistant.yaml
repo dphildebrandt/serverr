@@ -32,7 +32,7 @@ services:
     volumes:
       - $DOCKER_DIR/app-data/bar-assistant/bar:/var/www/cocktails/storage/bar-assistant
     environment:
-      APP_URL: https://bar-api.$DOMAIN_NAME:8080/bar
+      APP_URL: https://bar-api.$DOMAIN_NAME/bar
       MEILISEARCH_KEY: $MEILI_MASTER_KEY
       MEILISEARCH_HOST: http://bar-search:7700
       # REDIS_HOST: redis # Remove if not using redis
@@ -64,7 +64,7 @@ services:
       - no-new-privileges
     restart: unless-stopped
     environment:
-      API_URL: https://bar-api.$DOMAIN_NAME:8080/bar
+      API_URL: https://bar-api.$DOMAIN_NAME/bar
       MEILISEARCH_URL: http://bar-search:7700/search
     labels:
       - "traefik.enable=true"
