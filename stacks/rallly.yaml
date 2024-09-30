@@ -21,8 +21,6 @@ services:
     restart: unless-stopped
     volumes:
       - $DOCKER_DIR/app-data/rallly/db:/var/lib/postgresql/data
-    ports:
-      - 5432:5432
     secrets:
       - postgres_password
     environment:
