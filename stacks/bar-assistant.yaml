@@ -19,7 +19,7 @@ services:
       MEILI_ENV: production
 
   bar-api:
-    image: barassistant/server:latest
+    image: barassistant/server:v4
     container_name: bar-api
     depends_on:
       - bar-search
@@ -53,7 +53,7 @@ services:
       - "backup.stop"
 
   bar-web:
-    image: barassistant/salt-rim:latest
+    image: barassistant/salt-rim:v3
     container_name: bar-web
     depends_on:
       - bar-api
