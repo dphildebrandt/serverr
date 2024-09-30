@@ -13,6 +13,8 @@ services:
     security_opt:
       - no-new-privileges=true
     restart: unless-stopped
+    depends_on:
+      - bazarr-whisper
     volumes:
       - $DOCKER_DIR/app-data/bazarr:/config
       - $MEDIA_DIR/tv:/tv
@@ -45,6 +47,4 @@ services:
     environment: 
       ASR_MODEL: base
       ASR_ENGINE: faster_whisper
-    ports:
-      - 9000:9000
 
