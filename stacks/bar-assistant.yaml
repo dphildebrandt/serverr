@@ -18,6 +18,7 @@ services:
       MEILI_MASTER_KEY: $MEILI_MASTER_KEY
       MEILI_ENV: production
     labels:
+      - "traefik.enable=true"
       - "traefik.http.routers.bar-search.rule=Host(`bar-search.$DOMAIN_NAME`) && PathPrefix(`/search`)"
       - "traefik.http.middlewares.search-strip.stripprefix.prefixes=/search"
       - "traefik.http.routers.bar-search.middlewares=search-strip"
@@ -38,12 +39,13 @@ services:
     environment:
       APP_URL: http://bar.$DOMAIN_NAME/bar
       MEILISEARCH_KEY: $MEILI_MASTER_KEY
-      MEILISEARCH_HOST: http://bar.$DOMAIN_NAME/search
+      MEILISEARCH_HOST: http://bar-search:7700
       # REDIS_HOST: redis # Remove if not using redis
       CACHE_DRIVER: file # Change to "file" if not using redis
       SESSION_DRIVER: file # Change to "file" if not using redis
       ALLOW_REGISTRATION: true
     labels:
+      - "traefik.enable=true"
       - "traefik.http.routers.bar-api.rule=Host(`bar-api.$DOMAIN_NAME`) && PathPrefix(`/bar`)"
       - "traefik.http.middlewares.api-strip.stripprefix.prefixes=/bar"
       - "traefik.http.routers.bar-search.middlewares=api-strip"
