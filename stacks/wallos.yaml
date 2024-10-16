@@ -1,0 +1,24 @@
+services:
+  wallos:
+    container_name: wallos
+    image: bellamy/wallos:latest
+    networks:
+      - traefik_proxy
+    security_opt:
+      - no-new-privileges
+    restart: unless-stopped
+    volumes:
+      - $DOCKER_DIR/app-data/wallos/db:/var/www/html/db
+      - $DOCKER_DIR/app-data/wallos/logos:/var/www/html/images/uploads/logos
+    environment:
+      TZ: $TZ
+    labels:
+      - "traefik.enable=true"
+      # HTTP Routers
+      - "traefik.http.routers.wallos-rtr.entrypoints=websecure"
+      - "traefik.http.routers.wallos-rtr.rule=Host(`wallos.$DOMAIN_NAME`)"
+      # Middlewares
+      - "traefik.http.routers.wallos-rtr.middlewares=chain-oauth@file"
+      # HTTP Serices
+      - "traefik.http.routers.wallos-rtr.service=wallos-svc"
+      - "traefik.http.services.wallos-svc.loadbalancer.server.port=80"
