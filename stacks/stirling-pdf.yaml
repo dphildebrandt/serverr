@@ -1,7 +1,7 @@
 services:
   stirling-pdf:
     container_name: stirling-pdf
-    image: frooodle/s-pdf:latest
+    image: stirlingtools/stirling-pdf:latest
     networks:
       - traefik_proxy
     security_opt:
