@@ -1,0 +1,66 @@
+services:
+  bar-search:
+    image: getmeili/meilisearch:v1.8
+    container_name: bar-search
+    networks:
+      - traefik_proxy
+    security_opt:
+      - no-new-privileges=true
+    restart: unless-stopped
+    volumes:
+      - $DOCKER_DIR/app-data/bar-assistant/meilisearch:/meili_data
+    environment:
+      MEILI_MASTER_KEY: $MEILI_MASTER_KEY
+      MEILI_ENV: production
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.bar-search.rule=Host(`bar-search.$DOMAIN_NAME`)"
+
+  bar-api:
+    image: barassistant/server:v4
+    container_name: bar-api
+    depends_on:
+      - bar-search
+    networks:
+      - traefik_proxy
+    security_opt:
+      - no-new-privileges
+    restart: unless-stopped
+    volumes:
+      - $DOCKER_DIR/app-data/bar-assistant/bar:/var/www/cocktails/storage/bar-assistant
+    environment:
+      APP_URL: https://bar-api.$DOMAIN_NAME
+      MEILISEARCH_KEY: $MEILI_MASTER_KEY
+      MEILISEARCH_HOST: http://bar-search:7700
+      CACHE_DRIVER: file # Change to "file" if not using redis
+      SESSION_DRIVER: file # Change to "file" if not using redis
+      ALLOW_REGISTRATION: true
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.bar-api.rule=Host(`bar-api.$DOMAIN_NAME`)"
+
+  bar-web:
+    image: barassistant/salt-rim:v3
+    container_name: bar-web
+    depends_on:
+      - bar-api
+    networks:
+      - traefik_proxy
+    security_opt:
+      - no-new-privileges
+    restart: unless-stopped
+    environment:
+      API_URL: https://bar-api.$DOMAIN_NAME
+      MEILISEARCH_URL: http://bar-search.$DOMAIN_NAME
+    labels:
+      - "traefik.enable=true"
+      # HTTP Routers Auth
+      - "traefik.http.routers.bar-rtr.entrypoints=websecure"
+      - "traefik.http.routers.bar-rtr.rule=Host(`bar.$DOMAIN_NAME`)"
+      # Middlewares
+      - "traefik.http.routers.bar-rtr.middlewares=chain-no-auth@file"
+      # HTTP Services
+      - "traefik.http.routers.bar-rtr.service=bar-svc"
+      - "traefik.http.services.bar-svc.loadbalancer.server.port=8080"
+      # Backup
+      - "backup.stop"
