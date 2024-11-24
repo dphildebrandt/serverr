@@ -1,14 +1,9 @@
-networks:
-  bar-net:
-    name: bar-net
-    driver: bridge
-
 services:
   bar-search:
     image: getmeili/meilisearch:v1.8
     container_name: bar-search
     networks:
-      - bar-net
+      - traefik_proxy
     security_opt:
       - no-new-privileges=true
     restart: unless-stopped
@@ -27,7 +22,6 @@ services:
     depends_on:
       - bar-search
     networks:
-      - bar-net
       - traefik_proxy
     security_opt:
       - no-new-privileges
@@ -35,10 +29,9 @@ services:
     volumes:
       - $DOCKER_DIR/app-data/bar-assistant/bar:/var/www/cocktails/storage/bar-assistant
     environment:
-      APP_URL: http://bar.$DOMAIN_NAME/bar
+      APP_URL: https://bar-api.$DOMAIN_NAME
       MEILISEARCH_KEY: $MEILI_MASTER_KEY
       MEILISEARCH_HOST: http://bar-search:7700
-      # REDIS_HOST: redis # Remove if not using redis
       CACHE_DRIVER: file # Change to "file" if not using redis
       SESSION_DRIVER: file # Change to "file" if not using redis
       ALLOW_REGISTRATION: true
@@ -52,13 +45,12 @@ services:
     depends_on:
       - bar-api
     networks:
-      - bar-net
       - traefik_proxy
     security_opt:
       - no-new-privileges
     restart: unless-stopped
     environment:
-      API_URL: http://bar-api.$DOMAIN_NAME
+      API_URL: https://bar-api.$DOMAIN_NAME
       MEILISEARCH_URL: http://bar-search.$DOMAIN_NAME
     labels:
       - "traefik.enable=true"
