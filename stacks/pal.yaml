@@ -20,4 +20,5 @@ services:
       PLEX_URL: http://172.17.0.1:32400
       PLEX_TOKEN_FILE: /run/secrets/plex_token
       UPDATE_LEVEL: season
+      UPDATE_STRATEGY: "all"
       IGNORE_TAGS: PAL_IGNORE
