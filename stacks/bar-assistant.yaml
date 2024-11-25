@@ -34,7 +34,7 @@ services:
       MEILISEARCH_HOST: http://bar-search:7700
       CACHE_DRIVER: file # Change to "file" if not using redis
       SESSION_DRIVER: file # Change to "file" if not using redis
-      ALLOW_REGISTRATION: true
+      ALLOW_REGISTRATION: false
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.bar-api.rule=Host(`bar-api.$DOMAIN_NAME`)"
