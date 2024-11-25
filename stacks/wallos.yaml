@@ -22,3 +22,5 @@ services:
       # HTTP Serices
       - "traefik.http.routers.wallos-rtr.service=wallos-svc"
       - "traefik.http.services.wallos-svc.loadbalancer.server.port=80"
+      # Backup
+      - "backup.stop"
