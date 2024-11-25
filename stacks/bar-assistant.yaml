@@ -14,7 +14,15 @@ services:
       MEILI_ENV: production
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.bar-search.rule=Host(`bar-search.$DOMAIN_NAME`)"
+      # HTTP Routers Auth
+      - "traefik.http.routers.bar-search-rtr.entrypoints=websecure"
+      - "traefik.http.routers.bar-search-rtr.rule=Host(`bar.$DOMAIN_NAME`) && PathPrefix(`/search`)"
+      # Middlewares
+      - "traefik.http.middlewares.search-strip.stripprefix.prefixes=/search"
+      - "traefik.http.routers.bar-search-rtr.middlewares=chain-oauth@file,search-strip"
+      # HTTP Services
+      - "traefik.http.routers.bar-search-rtr.service=bar-search-svc"
+      - "traefik.http.services.bar-search-svc.loadbalancer.server.port=7700"
 
   bar-api:
     image: barassistant/server:v4
@@ -29,7 +37,7 @@ services:
     volumes:
       - $DOCKER_DIR/app-data/bar-assistant/bar:/var/www/cocktails/storage/bar-assistant
     environment:
-      APP_URL: https://bar-api.$DOMAIN_NAME
+      APP_URL: https://bar.$DOMAIN_NAME/bar
       MEILISEARCH_KEY: $MEILI_MASTER_KEY
       MEILISEARCH_HOST: http://bar-search:7700
       CACHE_DRIVER: file # Change to "file" if not using redis
@@ -37,7 +45,17 @@ services:
       ALLOW_REGISTRATION: false
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.bar-api.rule=Host(`bar-api.$DOMAIN_NAME`)"
+      # HTTP Routers Auth
+      - "traefik.http.routers.bar-api-rtr.entrypoints=websecure"
+      - "traefik.http.routers.bar-api-rtr.rule=Host(`bar.$DOMAIN_NAME`) && PathPrefix(`/bar`)"
+      # Middlewares
+      - "traefik.http.middlewares.bar-strip.stripprefix.prefixes=/bar"
+      - "traefik.http.routers.bar-api-rtr.middlewares=chain-oauth@file,bar-strip"
+      # HTTP Services
+      - "traefik.http.routers.bar-api-rtr.service=bar-api-svc"
+      - "traefik.http.services.bar-api-svc.loadbalancer.server.port=8080"
+      # Backup
+      - "backup.stop"
 
   bar-web:
     image: barassistant/salt-rim:v3
@@ -50,17 +68,15 @@ services:
       - no-new-privileges
     restart: unless-stopped
     environment:
-      API_URL: https://bar-api.$DOMAIN_NAME
-      MEILISEARCH_URL: http://bar-search.$DOMAIN_NAME
+      API_URL: https://bar.$DOMAIN_NAME/bar
+      MEILISEARCH_URL: https://bar.$DOMAIN_NAME/search
     labels:
       - "traefik.enable=true"
       # HTTP Routers Auth
       - "traefik.http.routers.bar-rtr.entrypoints=websecure"
       - "traefik.http.routers.bar-rtr.rule=Host(`bar.$DOMAIN_NAME`)"
       # Middlewares
-      - "traefik.http.routers.bar-rtr.middlewares=chain-no-auth@file"
+      - "traefik.http.routers.bar-rtr.middlewares=chain-oauth@file"
       # HTTP Services
       - "traefik.http.routers.bar-rtr.service=bar-svc"
       - "traefik.http.services.bar-svc.loadbalancer.server.port=8080"
-      # Backup
-      - "backup.stop"
