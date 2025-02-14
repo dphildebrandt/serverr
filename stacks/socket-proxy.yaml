@@ -30,7 +30,7 @@ services:
       - DISTRIBUTION=0
       - EXEC=0
       - IMAGES=1  # watchtower
-      - INFO=0
+      - INFO=1  # dozzle
       - NETWORKS=1  # watchtower
       - NODES=0
       - PLUGINS=0
