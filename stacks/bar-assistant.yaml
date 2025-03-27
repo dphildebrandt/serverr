@@ -25,7 +25,7 @@ services:
       - "traefik.http.services.bar-search-svc.loadbalancer.server.port=7700"
 
   bar-api:
-    image: barassistant/server:v4
+    image: barassistant/server:v5
     container_name: bar-api
     depends_on:
       - bar-search
@@ -58,7 +58,7 @@ services:
       - "backup.stop"
 
   bar-web:
-    image: barassistant/salt-rim:v3
+    image: barassistant/salt-rim:v4
     container_name: bar-web
     depends_on:
       - bar-api
