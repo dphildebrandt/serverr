@@ -17,6 +17,9 @@ app-data/traefik/*
 !app-data/rallly
 app-data/rallly/*
 !app-data/rallly/config.env.template
+!app-data/bricktracker
+app-data/bricktracker/*
+!app-data/bricktracker/env.sample
 !stacks
 !stacks/*
 !stacks/archive

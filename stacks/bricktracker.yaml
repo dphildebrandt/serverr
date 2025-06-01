@@ -1,0 +1,28 @@
+services:
+  bricktracker:
+    container_name: bricktracker
+    restart: unless-stopped
+    image: gitea.baerentsen.space/frederikbaerentsen/bricktracker:1.2.0
+    networks:
+      - traefik_proxy
+    security_opt:
+      - no-new-privileges=true
+    volumes:
+      - $DOCKER_DIR/app-data/bricktracker/data:/data
+      - $DOCKER_DIR/app-data/bricktracker/static/instructions:/app/static/instructions
+      - $DOCKER_DIR/app-data/bricktracker/static/minifigs:/app/static/minifigs
+      - $DOCKER_DIR/app-data/bricktracker/static/parts:/app/static/parts
+      - $DOCKER_DIR/app-data/bricktracker/static/sets:/app/static/sets
+    env_file: $DOCKER_DIR/app-data/bricktracker/env
+    labels:
+      - "traefik.enable=true"
+      # HTTP Routers Auth
+      - "traefik.http.routers.bricktracker-rtr.entrypoints=websecure"
+      - "traefik.http.routers.bricktracker-rtr.rule=Host(`lego.$DOMAIN_NAME`)"
+      # Middlewares
+      - "traefik.http.routers.bricktracker-rtr.middlewares=chain-oauth@file"
+      # HTTP Services
+      - "traefik.http.routers.bricktracker-rtr.service=bricktracker-svc"
+      - "traefik.http.services.bricktracker-svc.loadbalancer.server.port=3333"
+      # Backup
+      - "backup.stop"
