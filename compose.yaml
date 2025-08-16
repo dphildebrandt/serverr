@@ -33,7 +33,6 @@ include:
   - $DOCKER_DIR/stacks/radarr.yaml
   - $DOCKER_DIR/stacks/sonarr.yaml
   - $DOCKER_DIR/stacks/lidarr.yaml
-  - $DOCKER_DIR/stacks/readarr.yaml
   - $DOCKER_DIR/stacks/prowlarr.yaml
   - $DOCKER_DIR/stacks/bazarr.yaml
 
