@@ -13,9 +13,7 @@ services:
       TZ: $TZ
       PUID: $PUID
       PGID: $PGID
-      RECIPE_PUBLIC: "true"
-      RECIPE_SHOW_NUTRITION: "false"
-      RECIPE_DISABLE_COMMENTS: "true"
+      BASE_URL: "https://recipes.${DOMAIN_NAME}"
     labels:
       - "traefik.enable=true"
       # HTTP Routers
