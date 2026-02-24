@@ -38,7 +38,7 @@ include:
 
   # FRONTENDS
   - $DOCKER_DIR/stacks/homepage.yaml
-  - $DOCKER_DIR/stacks/overseerr.yaml
+  - $DOCKER_DIR/stacks/seerr.yaml
   - $DOCKER_DIR/stacks/mealie.yaml
   - $DOCKER_DIR/stacks/calibre-web.yaml
   - $DOCKER_DIR/stacks/rallly.yaml
