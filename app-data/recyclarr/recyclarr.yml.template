@@ -1,0 +1,50 @@
+sonarr:
+  series:
+    base_url: http://sonarr:8989
+    api_key: <INSERT API KEY HERE>
+
+    quality_definition:
+      type: series
+
+    delete_old_custom_formats: true
+
+    quality_profiles:
+      - trash_id: 9d142234e45d6143785ac55f5a9e8dc9  # WEB-1080p (Alternative)
+        name: Any
+      - trash_id: dca7e5e9e99c703bcbdaaa471dd40e98  # [German] HD Bluray + WEB 
+        name: Any - German
+
+radarr:
+  movies:
+    base_url: http://radarr:7878
+    api_key: <INSERT API KEY HERE>
+
+    quality_definition:
+      type: movie
+
+    delete_old_custom_formats: true
+
+    quality_profiles:
+      - trash_id: d1d67249d3890e49bc12e275d989a7e9  # HD Bluray + WEB
+        name: Any
+      - trash_id: 2b90e905c99490edc7c7a5787443748b  # [German] HD Bluray + WEB 
+        name: Any - German
+
+    custom_format_groups:
+      add:
+        - trash_id: f4f1474b963b24cf983455743aa9906c  # Movie Versions
+          select:
+            - e0c07d59beb37348e975a930d5e50319  # Criterion Collection
+            - eecf3a857724171f968a66cb5719e152  # IMAX
+            - 9f6cbff8cfe4ebbc1bde14c7b7bec0de  # IMAX Enhanced
+            - 9d27d9d2181838f76dee150882bdc58c  # Masters of Cinema
+            - 570bc9ebecd92723d2d21500f4be314c  # Remaster
+            - e9001909a4c88013a359d0b9920d7bea  # Theatrical Cut
+
+    custom_formats:
+      - trash_ids:
+          - bfd8eb01832d646a0a89c4deb46f8564 # Upscaled
+        assign_scores_to:
+          - name: Any
+          - name: Any - German
+

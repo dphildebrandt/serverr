@@ -24,3 +24,6 @@ app-data/bricktracker/*
 !stacks/*
 !stacks/archive
 !stacks/archive/*
+!app-data/recyclarr
+app-data/recyclarr/*
+!app-data/recyclarr/recyclarr.yml.template
