@@ -1,7 +1,7 @@
 services:
   watchtower:
     container_name: watchtower
-    image: containrrr/watchtower:latest
+    image: nickfedor/watchtower:latest
     networks:
       - socket_proxy
     security_opt:
