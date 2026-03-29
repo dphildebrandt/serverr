@@ -4,7 +4,7 @@ secrets:
 
 services:
   pal:
-    image: remirigal/plex-auto-languages:latest
+    image: ghcr.io/journeydocker/plex-auto-languages:latest
     container_name: pal
     networks:
       - traefik_proxy
